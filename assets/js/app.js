@@ -176,7 +176,7 @@ function showHomeStats(legs) {
     stats.MilesTraveled = parseFloat(distanceTraveled*0.000621371).toFixed(2);
     stats.MilesLeft = parseFloat(totalDistance*0.000621371).toFixed(2);
 
-    var startDate = new Date(2014, 6, 2);
+    var startDate = new Date(2014, 6, 3);
     var endDate = new Date(2014, 6, 30);
     var today = new Date();
 

@@ -31,13 +31,13 @@ layout: default
                 {% for post in site.posts %}
             <div class="post row">
                 <div class="col-sm-6">
-                    <h3><a href="{{site.baseurl}}{{ post.url | remove_first:'/' }}">{{ post.title }}</a></h3>
+                    <h3><a href="{{site.baseurl}}{{ post.url }}">{{ post.title }}</a></h3>
                     <div>{{ post.categories }}</div>
                     <div class="date">{{ post.date | date_to_string }}</div>
                 </div>
                 <div class="col-sm-6">
                     <div>{{ post.content | strip_html | truncatewords:100 }}</div>
-                    <a href="{{site.baseurl}}{{ post.url | remove_first:'/' }}">READ MORE</a>
+                    <a href="{{site.baseurl}}{{ post.url }}">READ MORE</a>
                 </div>
             </div>
                 {% endfor %}
