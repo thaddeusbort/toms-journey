@@ -158,9 +158,10 @@ function getStats(response) {
             makeMarker(legs[0].end_location, "Current");
             makeMarker(legs[1].end_location, "End");
             showHomeStats(legs);
-        } else
+        } else {
             makeMarker(legs[0].end_location, "End");
             showDayStats(legs);
+        }
     }
 }
 
