@@ -31,9 +31,6 @@ $(function() {
                 }
                 else
                     getWalkingDirections(stops);
-
-                // if(!flying)
-                //     getStats();
             }
         }
     }
@@ -74,6 +71,7 @@ function drawLine(stops) {
 }
 
 function getWalkingDirections(stops) {
+    var isHomepage = $(".home-map").length > 0;
     var origin = stops[0];
     var destination = stops[stops.length-1];
     var waypoints = _.map(_.initial(_.last(stops, stops.length-1))
@@ -84,16 +82,20 @@ function getWalkingDirections(stops) {
     });
     if(waypoints.length > 8) {
         console.log("Too many waypoints specified, reducing to prevent Google Maps error.");
-        waypoints = _.first(waypoints, 8);
+        waypoints = _.last(waypoints, 8);
+    }
+    if(isHomepage && waypoints.length > 0) {
+        _.last(waypoints).stopover = true;
     }
 
-    var directionsDisplay = new google.maps.DirectionsRenderer();
+    var directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers:true});
     var directionsService = new google.maps.DirectionsService();
     directionsDisplay.setMap(map);
     var request = {
         origin: origin,
         destination: destination,
         waypoints: waypoints,
+        optimizeWaypoints: true,
         travelMode: google.maps.TravelMode.WALKING
     };
     directionsService.route(request, function(response, status) {
@@ -112,10 +114,16 @@ function addMarker(location) {
             var latlng = results[0].geometry.location;
             bounds.extend(latlng);
             map.fitBounds(bounds);
-            var marker = new google.maps.Marker({
-                map: map,
-                position: latlng
-            });
+            var marker = makeMarker(latlng);
+                // icon: {
+                //     path: fontawesome.markers.EXCLAMATION,
+                //     scale: 0.5,
+                //     strokeWeight: 0.2,
+                //     strokeColor: 'black',
+                //     strokeOpacity: 1,
+                //     fillColor: '#f8ae5f',
+                //     fillOpacity: 0.7
+                // }
             markersArray.push(marker);
 
             // if drawing a line, update line now
@@ -131,50 +139,39 @@ function addMarker(location) {
         }
     });
 }
+function makeMarker(position, title) {
+    return new google.maps.Marker({
+        map: map,
+        position: position,
+        title: title
+    });
+}
 
 function getStats(response) {
-    // var origin = stops[0];
+    console.log(response);
 
-    // var service = new google.maps.DistanceMatrixService();
-    // service.getDistanceMatrix(
-    // {
-    //     origins: [origin],
-    //     destinations: stops,
-    //     travelMode: google.maps.TravelMode.WALKING,
-    //     unitSystem: google.maps.UnitSystem.IMPERIAL
-    // }, function(response, status) {
-        console.log(response);
-
-        if(!!response.routes && response.routes.length > 0) {
-            var legs = response.routes[0].legs;
-            if($("#homewrap").length > 0)
-                showHomeStats(legs);
-            else
-                showDayStats(legs);
-        }
-    //});
+    if(!!response.routes && response.routes.length > 0) {
+        var legs = response.routes[0].legs;
+        // add markers at start and end
+        makeMarker(legs[0].start_location, "Start");
+        if(legs.length > 1) {
+            makeMarker(legs[0].end_location, "Current");
+            makeMarker(legs[1].end_location, "End");
+            showHomeStats(legs);
+        } else
+            makeMarker(legs[0].end_location, "End");
+            showDayStats(legs);
+    }
 }
 
 function showHomeStats(legs) {
     var stats = {
         Day: null,
-        MilesTraveled: null,
-        MilesLeft: null,
+        MilesTraveled: kmToMi(legs[0].distance.value),
+        MilesLeft: kmToMi(legs[1].distance.value),
         DaysLeft: null,
         NeededPace: 1
     };
-
-    var distanceTraveled = 0;
-    var totalDistance = 0;
-    _.each(legs, function(element, index, list) {
-        console.log(element);
-        if(index < list.length-1)
-            distanceTraveled += element.distance.value;
-        else
-            totalDistance = element.distance.value;
-    });
-    stats.MilesTraveled = parseFloat(distanceTraveled*0.000621371).toFixed(2);
-    stats.MilesLeft = parseFloat(totalDistance*0.000621371).toFixed(2);
 
     var startDate = new Date(2014, 6, 3);
     var endDate = new Date(2014, 6, 30);
@@ -190,25 +187,27 @@ function showHomeStats(legs) {
         stats.Day = diffDays;
 
         stats.NeededPace = parseFloat(stats.MilesLeft/stats.DaysLeft).toFixed(2);
+        
+        var template = _.template($('#statsTemplate').html());
+        $("#stats").html(template({
+            stats: stats
+        }));
     }
-    var template = _.template($('#statsTemplate').html());
-    $("#stats").html(template({
-        stats: stats
-    }));
 }
 function showDayStats(legs) {
     if(!legs || legs.length < 1)
         return;
 
     var stats = {
-        MilesTraveled: null,
+        MilesTraveled: kmToMi(legs[0].distance.value)
     };
-
-    var distanceTraveled = legs[0].distance.value;
-    stats.MilesTraveled = parseFloat(distanceTraveled*0.000621371).toFixed(2);
 
     var template = _.template($('#statsTemplate').html());
     $("#stats").html(template({
         stats: stats
     }));
+}
+
+function kmToMi(val) {
+    return parseFloat(val*0.000621371).toFixed(2);
 }

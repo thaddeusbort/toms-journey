@@ -36,7 +36,8 @@ layout: default
                     <div class="date">{{ post.date | date_to_string }}</div>
                 </div>
                 <div class="col-sm-6">
-                    <div>{{ post.content | strip_html | truncatewords:100 }}</div>
+                    <div>{{ post.content | strip_html | truncatewords:50 }}</div>
+                    <!-- <div>{{ post.locations | array_to_sentence_string}}</div> -->
                     <a href="{{site.baseurl}}{{ post.url }}">READ MORE</a>
                 </div>
             </div>
@@ -48,9 +49,9 @@ layout: default
 
     <script type="text/template" id="statsTemplate">
         <% if(!!stats.MilesTraveled) { %>
-            <div>Day: <%= stats.Day %></div>
+            <div>Day <%= stats.Day %></div>
             <div>Miles Traveled: <%= stats.MilesTraveled %></div>
             <div>Miles Left: <%= stats.MilesLeft %></div>
-            <div>Needed Pace: <%= stats.NeededPace %></div>
+            <div>Needed Pace: <%= stats.NeededPace %>mi/day</div>
         <% } %>
     </script>

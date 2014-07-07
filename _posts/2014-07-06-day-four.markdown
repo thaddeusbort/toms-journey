@@ -14,8 +14,8 @@ locations: ["Zubiri, Spain",
             "Zariquiegui, Spain",
             "Alto de Perdon, Spain",
             "Uterga, Spain",
-            "Obanos, Spain",
             "Muruzábal, Spain",
+            "Obanos, Spain",
             "Puente la Reina, Spain"]
 ---
 
