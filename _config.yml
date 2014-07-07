@@ -1,0 +1,5 @@
+name: Tom's Journal
+description: Tom Shriver's Travel Journal.
+markdown: redcarpet
+pygments: true
+permalink: /:title

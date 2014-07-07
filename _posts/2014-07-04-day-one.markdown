@@ -1,0 +1,6 @@
+---
+layout: post
+title:  Day One
+date:   2014-07-03 00:00:00
+locations: ["St. Jean Pied de Port, France", "Rancevalles, Spain"]
+---

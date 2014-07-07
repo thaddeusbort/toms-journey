@@ -1,4 +1,4 @@
-toms-journal
+Tom's Journal
 ============
 
-The travel journal of Thomas Shriver during his journey across the Camino de Santiago
+This is a site to showcase my father-in-law's journey on the El Camino de Santiago. I built the site with [jekyll](http://jekyllrb.com/) and the Google Maps API.

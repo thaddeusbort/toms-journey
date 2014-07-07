@@ -1,0 +1,42 @@
+---
+layout: default
+---
+
+    <div id="homewrap">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-lg-12">
+                    <h1><b>{{ site.name }}</b></h1>
+                    <br>
+                </div>
+                
+                <div class="col-lg-12">
+                    <div id="map" class="home-map" data-stops="{% for post in site.posts reversed %}{% if post.travelmode != 'Flying' %}{% for location in post.locations %}{{ location }}|{% endfor %}{% endif %}{% endfor %}Santiago,Spain"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="posts-wrap">
+        <div class="container">
+            <div class="row text-center">
+            <h1>Journal Entries</h1>
+            </div>
+
+            <div class="posts">
+                {% for post in site.posts %}
+            <div class="post row">
+                <div class="col-sm-6">
+                    <h3><a href="{{site.baseurl}}{{ post.url | remove_first:'/' }}">{{ post.title }}</a></h3>
+                    <div>{{ post.categories }}</div>
+                    <div class="date">{{ post.date | date_to_string }}</div>
+                </div>
+                <div class="col-sm-6">
+                    <div>{{ post.content | strip_html | truncatewords:100 }}</div>
+                    <a href="{{site.baseurl}}{{ post.url | remove_first:'/' }}">READ MORE</a>
+                </div>
+            </div>
+                {% endfor %}
+            </div>
+        </div> <!--/ .container -->
+    </div><!--/ #posts-wrap -->
