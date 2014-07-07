@@ -23,14 +23,14 @@ layout: default
         <div class="container">
             <div class="col-lg-6">
             {% if page.previous %}
-                <h3><a href="{{page.previous.url}}">&larr; {{page.previous.title}}</a></h3>
+                <h3><a href="{{site.baseurl}}{{page.previous.url}}">&larr; {{page.previous.title}}</a></h3>
                 <p>{{ page.previous.date | date: '%A, %B %-d, %Y'}}<br/>{{ page.previous.date | date: '%-I:%M %p %Z'}}</p>
             {% endif %}
             </div>
             
             <div class="col-lg-6 text-right">
             {% if page.next %}
-                <h3><a href="{{page.next.url}}">{{page.next.title}} &rarr;</a></h3>
+                <h3><a href="{{site.baseurl}}{{page.next.url}}">{{page.next.title}} &rarr;</a></h3>
                 <p>{{ page.next.date | date: '%A, %B %-d, %Y'}}<br/>{{ page.next.date | date: '%-I:%M %p %Z'}}</p>
             {% endif %}
             </div>
