@@ -33,11 +33,11 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="{{site.baseurl}}"><b>{{ site.name }}</b></a>
+              <a class="navbar-brand" href="{{site.baseurl}}/"><b>{{ site.name }}</b></a>
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
-                <li {% if page.url == '/index.html' %}class="active"{% endif %}><a href="{{site.baseurl}}">Home</a></li>
+                <li {% if page.url == '/index.html' %}class="active"{% endif %}><a href="{{site.baseurl}}/">Home</a></li>
                 <!-- <li {% if page.url contains '/blog' %}class="active"{% endif %}><a href="{{site.baseurl}}blog">Blog</a></li> -->
                 <li {% if page.url contains '/getting-there' %}class="active"{% endif %}><a href="{{site.baseurl}}/getting-there">About</a></li>
               </ul>

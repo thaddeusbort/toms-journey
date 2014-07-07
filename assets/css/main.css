@@ -179,6 +179,10 @@ a:after {
 /*
 /****************************/
 
+hr {
+  border-color: #ddd;
+}
+
 #map {
   width:100%; height:200px; 
   margin-bottom: 50px;
@@ -189,11 +193,9 @@ a:after {
 .post-map {
 }
 .post-stats {
-  float:right;
 }
 
 .imagepop img {
   width: 300px;
   padding: 20px;
 }
-

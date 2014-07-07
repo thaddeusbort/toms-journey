@@ -22,18 +22,18 @@ $(function() {
             var flying = mapDiv.data("travelmode") == "Flying";
             
             if(stops.length > 0) {
-                if(flying)
+                if(flying) {
                     drawLine(stops);
+                    _.each(stops, function(element, index, list) {
+                        console.log("adding marker for " + element);
+                        addMarker(element);
+                    });
+                }
                 else
                     getWalkingDirections(stops);
 
-                _.each(stops, function(element, index, list) {
-                    console.log("adding marker for " + element);
-                    addMarker(element);
-                });
-
-                if(!flying)
-                    getStats();
+                // if(!flying)
+                //     getStats();
             }
         }
     }
@@ -76,6 +76,16 @@ function drawLine(stops) {
 function getWalkingDirections(stops) {
     var origin = stops[0];
     var destination = stops[stops.length-1];
+    var waypoints = _.map(_.initial(_.last(stops, stops.length-1))
+        , function(val) { return {
+            location: val,
+            stopover: false
+        }
+    });
+    if(waypoints.length > 8) {
+        console.log("Too many waypoints specified, reducing to prevent Google Maps error.");
+        waypoints = _.first(waypoints, 8);
+    }
 
     var directionsDisplay = new google.maps.DirectionsRenderer();
     var directionsService = new google.maps.DirectionsService();
@@ -83,11 +93,13 @@ function getWalkingDirections(stops) {
     var request = {
         origin: origin,
         destination: destination,
+        waypoints: waypoints,
         travelMode: google.maps.TravelMode.WALKING
     };
     directionsService.route(request, function(response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
+            getStats(response);
         } else {
             console.log("Error getting route");
         }
@@ -120,33 +132,30 @@ function addMarker(location) {
     });
 }
 
-function getStats() {
-    var origin = stops[0];
+function getStats(response) {
+    // var origin = stops[0];
 
-    var service = new google.maps.DistanceMatrixService();
-    service.getDistanceMatrix(
-    {
-        origins: [origin],
-        destinations: stops,
-        travelMode: google.maps.TravelMode.WALKING,
-        unitSystem: google.maps.UnitSystem.IMPERIAL
-    }, function(response, status) {
+    // var service = new google.maps.DistanceMatrixService();
+    // service.getDistanceMatrix(
+    // {
+    //     origins: [origin],
+    //     destinations: stops,
+    //     travelMode: google.maps.TravelMode.WALKING,
+    //     unitSystem: google.maps.UnitSystem.IMPERIAL
+    // }, function(response, status) {
         console.log(response);
-        console.log(status);
-        if(status !== "OK")
-            return console.log("Problem getting distance!");
 
-        if(!!response.rows && response.rows.length > 0) {
-            var results = response.rows[0].elements;
+        if(!!response.routes && response.routes.length > 0) {
+            var legs = response.routes[0].legs;
             if($("#homewrap").length > 0)
-                showHomeStats(results)
+                showHomeStats(legs);
             else
-                showDayStats(results);
+                showDayStats(legs);
         }
-    });
+    //});
 }
 
-function showHomeStats(results) {
+function showHomeStats(legs) {
     var stats = {
         Day: null,
         MilesTraveled: null,
@@ -157,7 +166,8 @@ function showHomeStats(results) {
 
     var distanceTraveled = 0;
     var totalDistance = 0;
-    _.each(results, function(element, index, list) {
+    _.each(legs, function(element, index, list) {
+        console.log(element);
         if(index < list.length-1)
             distanceTraveled += element.distance.value;
         else
@@ -186,15 +196,15 @@ function showHomeStats(results) {
         stats: stats
     }));
 }
-function showDayStats(results) {
+function showDayStats(legs) {
+    if(!legs || legs.length < 1)
+        return;
+
     var stats = {
         MilesTraveled: null,
     };
 
-    var distanceTraveled = 0;
-    _.each(results, function(element, index, list) {
-        distanceTraveled += element.distance.value;
-    });
+    var distanceTraveled = legs[0].distance.value;
     stats.MilesTraveled = parseFloat(distanceTraveled*0.000621371).toFixed(2);
 
     var template = _.template($('#statsTemplate').html());

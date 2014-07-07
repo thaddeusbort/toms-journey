@@ -6,16 +6,32 @@ layout: default
         <div class="row">
             <h1>{{ page.title }}</h1>
 
-            <div id="stats" class="post-stats"></div>
+            {% if page.previous %}
+            <div class="pull-right">Last checkin: {{ page.previous.date | date: '%B %-d, %Y' }}
+                <div id="stats" class="post-stats"></div>
+            </div>
+            {% endif %}
 
             <p class="meta">{{ page.date | date: '%A, %B %-d, %Y'}}<br/>
-            {{ page.date | date: '%-I:%M %p %Z'}}</p>
+            {{ page.date | date: '%-I:%M %p'}} {{page.timezone}}</p>
 
             <div id="map" class="post-map" data-stops="{% for location in page.locations %}{{ location }}|{% endfor %}" {% if page.travelmode != "" %}data-travelmode="{{ page.travelmode }}"{% endif %}></div>
 
             <div class="post">
             {{ content }}
             </div>
+
+            {% if page.travelmode != "Flying" %}
+            <div class="towns">
+                <h2>Towns</h2>
+                <ul>
+                {% for location in page.locations %}
+                    <li><a href="http://en.wikipedia.org/wiki/{{location | split: ',' | first}}" target="_blank">{{location}}</a></li>
+                    <!-- <li><a href="https://www.google.com/search?sourceid=navclient&btnI=1&as_sitesearch=https://s‌​ecure.wikimedia.org/wikipedia/en&q={{location}}" target="_blank"> -->
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -24,14 +40,14 @@ layout: default
             <div class="col-lg-6">
             {% if page.previous %}
                 <h3><a href="{{site.baseurl}}{{page.previous.url}}">&larr; {{page.previous.title}}</a></h3>
-                <p>{{ page.previous.date | date: '%A, %B %-d, %Y'}}<br/>{{ page.previous.date | date: '%-I:%M %p %Z'}}</p>
+                <p>{{ page.previous.date | date: '%A, %B %-d, %Y'}}<br/>{{ page.previous.date | date: '%-I:%M %p'}} {{page.previous.timezone}}</p>
             {% endif %}
             </div>
             
             <div class="col-lg-6 text-right">
             {% if page.next %}
                 <h3><a href="{{site.baseurl}}{{page.next.url}}">{{page.next.title}} &rarr;</a></h3>
-                <p>{{ page.next.date | date: '%A, %B %-d, %Y'}}<br/>{{ page.next.date | date: '%-I:%M %p %Z'}}</p>
+                <p>{{ page.next.date | date: '%A, %B %-d, %Y'}}<br/>{{ page.next.date | date: '%-I:%M %p'}} {{page.next.timezone}}</p>
             {% endif %}
             </div>
         </div>

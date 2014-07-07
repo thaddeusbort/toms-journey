@@ -2,6 +2,7 @@
 layout: post
 title:  Getting There
 date:   2014-07-01 09:49:00 EDT
+timezone: EDT
 locations: ["Alden, NY", "Toronto, ON", "Barcelona, Spain"]
 travelmode: Flying
 ---
