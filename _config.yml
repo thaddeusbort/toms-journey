@@ -1,6 +1,6 @@
 name: Tom's Journey
-description: Tom Shriver's Travel Journal.
+description: Tom Shriver's El Camino Journey
 markdown: redcarpet
 permalink: /:title
-baseurl: /toms-journal
-url: http://thaddeusbort.github.io/toms-journal
+baseurl: /toms-journey
+url: http://thaddeusbort.github.io/toms-journey
