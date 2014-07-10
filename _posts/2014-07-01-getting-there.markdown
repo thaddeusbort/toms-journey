@@ -7,7 +7,7 @@ locations: ["Alden, NY", "Toronto, ON", "Barcelona, Spain"]
 travelmode: Flying
 ---
 
-<a class="imagepop pull-right" href="{{site.baseurl}}/assets/img/ready_to_go.jpg"><img src="{{site.baseurl}}/assets/img/ready_to_go.jpg" alt="Ready to go!"></a>
+<a class="imagepop pull-right" href="{{site.url}}/assets/img/ready_to_go.jpg"><img src="{{site.url}}/assets/img/ready_to_go.jpg" alt="Ready to go!"></a>
 
 And so it begins... a few hours from now (12:15 pm) I will birth a journey that began 9 months ago in the planning stages as God planted a seed of desire in my heart to return to him the gratitude he so deserves for granting me these past 20 years of health and prosperity, physically, emotionally, and financially.  My heart is ready, my mind is ready, my body will need to adjust as the physical walking trip begins on Thursday morning from St. Jean Pied de Port, France and leads me up and over the Pyrenees Mountains, separating France from Spain.  
 
