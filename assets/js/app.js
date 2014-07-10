@@ -335,11 +335,12 @@ function buildElevationGraph() {
 }
 
 var moveMarker;
-$(DOM.elevation).mousemove(function(event) {
+$(DOM.elevation).on("mousemove touchmove", function(event) {
 //    moveMarker.setVisible(true);
+    event.preventDefault();
     handleMouseOverGraph(event);
 });
-$(DOM.elevation).mouseleave(function(event) {
+$(DOM.elevation).on("mouseleave touchend", function(event) {
 //    moveMarker.setVisible(false);
     moveMarker.setPosition(elevationData[0].l);
 });
@@ -358,8 +359,8 @@ function handleMouseOverGraph(event) {
     // this used to use graph.dimensions but that didn't get updated if they moved the window
     // I don't think initDimensions takes very long to run, so this probably shouldn't be too bad
     var dimensions = initDimensions(DOM.elevation);
-    var mouseX = (!!event.gesture ? event.gesture.center.pageX : event.pageX) - dimensions.xOffset - m[3];
-    //var mouseY = (!!event.gesture ? event.gesture.center.pageY : event.pageY) - dimensions.yOffset;
+    var mouseX = (event.type == "touchmove" ? (event.originalEvent.touches[0] || event.originalEvent.changedTouches[0]).pageX : event.pageX)
+        - dimensions.xOffset - m[3];
 
     if(mouseX < 0)
         mouseX = 0;
@@ -402,8 +403,9 @@ function buildArcGauge(value, label, hoverValue, hoverMax, hoverLabel) {
           .append('g')
             .attr('transform', 'translate(' + (width / 2) + ',' + height / 2 + ')')
             .on('mouseover', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
-            .on('mouseleave', function (e) { animateArc(value, label, fastDuration, normalColor); });
-            console.log(svg);
+            .on('touchstart', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
+            .on('mouseleave', function (e) { animateArc(value, label, fastDuration, normalColor); })
+            .on('touchend', function (e) { animateArc(value, label, fastDuration, normalColor); });;
 
     arc = d3.svg.arc()
       .innerRadius(radius-20)
