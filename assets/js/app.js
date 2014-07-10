@@ -8,7 +8,8 @@ var dashedLine = [{ offset: '0', repeat: '20px', icon: { path: 'M 0,-1 0,1', str
 var DOM = {
     imgpop: $(".imagepop"),
     map: $("#map"),
-    elevation: $("#elevation")
+    elevation: $("#elevation"),
+    arcgauge: function() { return $(".arcgauge"); }
 };
         
 $(function() {
@@ -76,32 +77,30 @@ $(function() {
             moveMarker = addMarker(_.first(stops), null, null, startIcon);
             addMarker(_.last(stops), null, null, stopIcon);
 
-            //var elevator = new google.maps.ElevationService();
-            //var test = elevator.getElevationForLocations({
-            //    locations: decodedPath
-            //elevator.getElevationAlongPath({
-            //    path: decodedPath,
-            //    samples: 100
-            //}, function(results, status) {
-            //    console.log(results);
-            //    console.log(status);
             buildElevationGraph();
 
             if(isHomepage) {
                 var endDate = new Date(2014, 6, 25);
 
-                if(lastCheckin < endDate) {
+                if(lastCheckin < endDate && !!mileage && mileage > 0) {
+                    var TOTAL_MILES = 460;
+                    var TOTAL_DAYS = 22;
                     var timeDiff = Math.abs(endDate.getTime() - lastCheckin.getTime());
                     var daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    var daysUsed = TOTAL_DAYS - daysLeft;
 
-                    var TOTAL_MILES = 460;
                     var model = {
                         milesTraveled: parseInt(mileage),
                         milesLeft: parseInt(TOTAL_MILES-mileage),
-                        percentComplete: parseInt((mileage/TOTAL_MILES)*100)
+                        percentTraveled: parseInt((mileage/TOTAL_MILES)*100),
+                        percentDays: parseInt((daysUsed/TOTAL_DAYS)*100),
+                        daysLeft: daysLeft,
+                        maxElevation: _.max(_.pluck(elevationData, "e"))
                     };
                     model.neededPace = parseFloat(model.milesLeft/daysLeft).toFixed(2);
                     useTemplate("statsTemplate", "stats", model);
+
+                    buildArcGauge(model.percentTraveled, "% traveled", daysUsed, TOTAL_DAYS, "days walking");
                 }
             }
         }
@@ -381,4 +380,85 @@ function handleMouseOverGraph(event) {
             moveMarker.setPosition(val.l);
         }
     }
+}
+
+var foreground, arc;
+var arctext, arclabel;
+var twoPi = Math.PI * 2;
+function buildArcGauge(value, label, hoverValue, hoverMax, hoverLabel) {
+    var width = 215,
+    height = 170,
+    radius = 70,
+    normalColor = '#32978B',
+    lowColor = '#c81322',
+    secondaryColor = '#a1e8df',
+    normalDuration = 750,
+    fastDuration = 100;
+
+    var svg = d3.select(DOM.arcgauge()[0])
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+          .append('g')
+            .attr('transform', 'translate(' + ((width / 2)-20) + ',' + height / 2 + ')')
+            .on('mouseover', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
+            .on('mouseleave', function (e) { animateArc(value, label, fastDuration, normalColor); });
+            console.log(svg);
+
+    arc = d3.svg.arc()
+      .innerRadius(radius-20)
+      .outerRadius(radius);
+
+    var meter = svg.append('g')
+        .attr('class', 'arc-gauge');
+      meter.append('path')  // background
+        .datum({startAngle: 0, endAngle: twoPi})
+        .style('fill', '#ddd')
+        .attr('d', arc);
+      meter.append('circle')
+        .attr('r', radius - 20)
+        .style('fill', 'white')
+        .style('opacity', 0.1);
+
+    arctext = meter.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '.35em')
+        .attr('class', 'digits')
+        .style('pointer-events', 'none');
+
+    if (label) {
+        arclabel = meter.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '2.6em')
+            .attr('class', 'arclabel')
+            .style('pointer-events', 'none')
+            .text(label);
+    }
+
+    var startAngle = 0;
+    foreground = meter.append('path')
+      .datum({ startAngle: startAngle, endAngle: startAngle })
+      .attr('d', arc);
+
+  animateArc(value, label, normalDuration, normalColor);
+}
+function animateArc(value, label, duration, fill, maxValue) {
+    if(typeof(maxValue)==='undefined') maxValue = 100;
+    arctext.text(value ? value : '--');
+    arctext.classed("small", (value.toString().length > 2));
+    arclabel.text(label);
+    arclabel.attr('dy', label.length > 4 ? '3.3em' : '2.6em');
+    arclabel.classed("small", label.length > 4);
+
+    var endAngle = (value > 1 ? (value / maxValue) : value) * twoPi;
+
+    foreground.transition().duration(duration)
+        .attrTween('d', function (d) {
+          var i = d3.interpolate(d.endAngle, endAngle);
+          return function (t) {
+            d.endAngle = i(t);
+            foreground.style('fill', fill);
+            return arc(d);
+          };
+        });
 }

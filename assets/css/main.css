@@ -238,3 +238,20 @@ path.area {
     fill:rgb(245,245,245);
     fill-opacity:1;
 }
+
+.home-stats h1,.home-stats h2,.home-stats h3,.home-stats h4 {
+  color: white;
+}
+.home-stats h2 { font-size: 45px; margin-bottom: 0; }
+.home-stats h4 { margin-top: 0; }
+.home-stats small { position: relative; top: -.2em; }
+
+.arc-gauge text { fill: white; }
+.arc-gauge .digits {
+  font-family: 'Orienta', sans-serif;
+  font-weight: 500;
+  font-size: 4em;
+  letter-spacing: -4px;
+}
+.arcgauge .digits.small { font-size: 3em; }
+.arcgauge .arclabel.small { font-size: 11px; }

@@ -18,9 +18,7 @@ layout: default
 
                     <div id="elevation" class="graph"></div>
                 </div>
-                <div class="col-lg-12">
-                    <div id="stats" class="home-stats"></div>
-                </div>
+                <div id="stats" class="home-stats"></div>
             </div>
         </div>
     </div>
@@ -52,12 +50,17 @@ layout: default
 
 
     <script type="text/template" id="statsTemplate">
-        <% if(!!model.milesTraveled) { %>
-            <div>Miles Traveled: <%= model.milesTraveled %></div>
-            <div>Miles Left: <%= model.milesLeft %></div>
-            <div>Percent Complete: <%= model.percentComplete %></div>
-            <div>Needed Pace: <%= model.neededPace %>mi/day</div>
-        <% } %>
+        <div class="col-sm-4 text-center">
+            <h2><%= model.milesTraveled %></h2><h4>MILES TRAVELED</h4>
+            <h2><%= model.milesLeft %></h2><h4>MILES LEFT</h4>
+        </div>
+        <div class="col-sm-4">
+            <div class="arcgauge"></div>
+        </div>
+        <div class="col-sm-4 text-center">
+            <h2><%= model.neededPace %><small>mi/day</small></h2>
+            <h4>PACE NEEDED TO REACH GOAL</h4>
+        </div>
     </script>
 
     <script type="text/javascript">
