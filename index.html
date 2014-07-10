@@ -15,7 +15,7 @@ layout: default
                     data-path="{% for post in site.posts reversed %}{{ post.polyline }}-{% endfor %}"
                     data-stops="{% for post in site.posts reversed %}{% if post.travelmode != 'Flying' %}{% for location in post.locations %}{{ location }}|{% endfor %}{% endif %}{% endfor %}Santiago,Spain"></div>
 
-                    <div id="elevation" class="graph"></div>
+                    <div id="elevation" class="graph home-graph"></div>
                 </div>
                 <div id="stats" class="home-stats"></div>
             </div>

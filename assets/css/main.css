@@ -240,6 +240,12 @@ path.area {
     fill:rgb(245,245,245);
     fill-opacity:1;
 }
+.home-graph text {
+  fill: white;
+}
+.home-graph line, .home-graph .y.axis line, .home-graph .y.axis path {
+  stroke: white;
+}
 
 .home-stats h1,.home-stats h2,.home-stats h3,.home-stats h4 {
   color: white;

@@ -263,7 +263,7 @@ function kmToMi(val) {
 }
 
 var graph, x, hoverLineGroup, hoverLineTextValue, graphArea, area;
-var m = [0,0,0,80];
+var m = [0,0,0,55];
 function buildElevationGraph() {
     if(!elevationData[0].e) {
         elevationData = _.flatten(elevationData);
@@ -299,8 +299,16 @@ function buildElevationGraph() {
     var yAxisLeft = d3.svg.axis().scale(y).ticks(4).orient("left");
     graph.append("g")
           .attr("class", "y axis")
-          .attr("transform", "translate(-25,0)")
+          .attr("transform", "translate(0,0)")
           .call(yAxisLeft);
+    graph.append("text")
+        .attr("class", "y axis-label")
+        .attr("text-anchor", "end")
+        .attr("y", -m[3])
+        .attr("x", -40)
+        .attr("dy", ".75em")
+        .attr("transform", "rotate(-90)")
+        .text("elevation (m)");
 
     // add line and area
     graph.append("path").attr("d", line(elevationData)).attr("class", "line");
