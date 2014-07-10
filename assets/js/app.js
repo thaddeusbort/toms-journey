@@ -405,7 +405,8 @@ function buildArcGauge(value, label, hoverValue, hoverMax, hoverLabel) {
             .on('mouseover', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
             .on('touchstart', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
             .on('mouseleave', function (e) { animateArc(value, label, fastDuration, normalColor); })
-            .on('touchend', function (e) { animateArc(value, label, fastDuration, normalColor); });;
+            .on('touchend', function (e) { animateArc(value, label, fastDuration, normalColor); })
+            .on('touchcancel', function (e) { animateArc(value, label, fastDuration, normalColor); });
 
     arc = d3.svg.arc()
       .innerRadius(radius-20)
