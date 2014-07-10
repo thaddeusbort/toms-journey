@@ -386,7 +386,7 @@ var foreground, arc;
 var arctext, arclabel;
 var twoPi = Math.PI * 2;
 function buildArcGauge(value, label, hoverValue, hoverMax, hoverLabel) {
-    var width = 215,
+    var width = 170,
     height = 170,
     radius = 70,
     normalColor = '#32978B',
@@ -400,7 +400,7 @@ function buildArcGauge(value, label, hoverValue, hoverMax, hoverLabel) {
         .attr('width', width)
         .attr('height', height)
           .append('g')
-            .attr('transform', 'translate(' + ((width / 2)-20) + ',' + height / 2 + ')')
+            .attr('transform', 'translate(' + (width / 2) + ',' + height / 2 + ')')
             .on('mouseover', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
             .on('mouseleave', function (e) { animateArc(value, label, fastDuration, normalColor); });
             console.log(svg);

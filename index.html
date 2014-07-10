@@ -8,7 +8,6 @@ layout: default
                 <div class="col-lg-12">
                     <h1><b>{{ site.name }}</b></h1>
                     <h3>on the Camino de Santiago</h3>
-                    <br>
                 </div>
 
                 <div class="col-lg-12">
@@ -34,7 +33,10 @@ layout: default
             <div class="post row">
                 <div class="col-sm-6">
                     <h3><a href="{{site.baseurl}}{{ post.url }}">{{ post.title }}</a></h3>
-                    <div>{{ post.categories }}</div>
+                    <!-- <div>{{ post.categories }}</div> -->
+                    {% if post.travelmode == "Flying" %}{% else %}
+                    <div>{{ post.locations | array_to_sentence_string | remove: ", Spain" | truncatewords:7 }}</div>
+                    {% endif %}
                     <div class="date">{{ post.date | date_to_string }}</div>
                 </div>
                 <div class="col-sm-6">

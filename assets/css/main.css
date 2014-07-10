@@ -105,6 +105,7 @@ a:after {
 #homewrap h3 {
   color: white;
   font-size: 30px;
+  margin: 10px;
 }
 
 #homewrap h5 {
@@ -189,8 +190,9 @@ hr {
 }
 #map.home-map {
   height:350px;
+  margin-top: 20px;
 }
-.post {
+.post.full {
   padding-top: 50px;
 }
 .post-map {
@@ -255,3 +257,22 @@ path.area {
 }
 .arcgauge .digits.small { font-size: 3em; }
 .arcgauge .arclabel.small { font-size: 11px; }
+
+
+/****************************
+/* MEDIA QUERIES
+/****************************/
+@media (max-width: 767px) {
+  #map.home-map {
+    height:200px;
+    margin-top: 10px;
+  }
+  #homewrap h1 {
+    font-size: 50px;
+    margin: 0;
+  }
+  #homewrap h3 {
+    font-size: 20px;
+    margin: 0;
+  }
+}
