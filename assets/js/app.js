@@ -4,8 +4,8 @@ var isHomepage = $(".home-map").length > 0;
 
 var dottedLine = [{ offset: '0', repeat: '10px', icon: { path: 'M 0,0 0,0.1', strokeOpacity: 1, strokeColor: '#335599', scale: 4 }}];
 var dashedLine = [{ offset: '0', repeat: '20px', icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#E84813', scale: 4 }}];
-var startIcon = "/assets/img/marker_start.png";
-var stopIcon = "/assets/img/marker_stop.png";
+var startIcon = "../assets/img/marker_start.png";
+var stopIcon = "../assets/img/marker_stop.png";
 
 var DOM = {
     imgpop: $(".imagepop"),
@@ -89,21 +89,22 @@ $(function() {
             //    console.log(status);
             buildElevationGraph();
 
-            //     var startDate = new Date(2014, 6, 3);
-            var endDate = new Date(2014, 6, 25);
+            if(isHomepage) {
+                var endDate = new Date(2014, 6, 25);
 
-            if(lastCheckin < endDate) {
-                var timeDiff = Math.abs(endDate.getTime() - lastCheckin.getTime());
-                var daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                if(lastCheckin < endDate) {
+                    var timeDiff = Math.abs(endDate.getTime() - lastCheckin.getTime());
+                    var daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-                var TOTAL_MILES = 460;
-                var model = {
-                    milesTraveled: parseInt(mileage),
-                    milesLeft: parseInt(TOTAL_MILES-mileage),
-                    percentComplete: parseInt((mileage/TOTAL_MILES)*100)
-                };
-                model.neededPace = parseFloat(model.milesLeft/daysLeft).toFixed(2);
-                useTemplate("statsTemplate", "stats", model);
+                    var TOTAL_MILES = 460;
+                    var model = {
+                        milesTraveled: parseInt(mileage),
+                        milesLeft: parseInt(TOTAL_MILES-mileage),
+                        percentComplete: parseInt((mileage/TOTAL_MILES)*100)
+                    };
+                    model.neededPace = parseFloat(model.milesLeft/daysLeft).toFixed(2);
+                    useTemplate("statsTemplate", "stats", model);
+                }
             }
         }
     }
@@ -379,7 +380,6 @@ function handleMouseOverGraph(event) {
 
             var val = elevationData[hoveredIndex];
             hoverLineTextValue.text(parseInt(val.e) + "m");
-            console.log("move map marker to:" + val.l);
             moveMarker.setPosition(val.l);
         }
     }
