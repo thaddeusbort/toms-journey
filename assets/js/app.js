@@ -4,8 +4,6 @@ var isHomepage = $(".home-map").length > 0;
 
 var dottedLine = [{ offset: '0', repeat: '10px', icon: { path: 'M 0,0 0,0.1', strokeOpacity: 1, strokeColor: '#335599', scale: 4 }}];
 var dashedLine = [{ offset: '0', repeat: '20px', icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#E84813', scale: 4 }}];
-var startIcon = "../assets/img/marker_start.png";
-var stopIcon = "../assets/img/marker_stop.png";
 
 var DOM = {
     imgpop: $(".imagepop"),
