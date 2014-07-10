@@ -6,16 +6,35 @@ layout: default
         <div class="row">
             <h1>{{ page.title }}</h1>
 
-            {% if page.previous %}
-            <div class="pull-right">Last checkin: {{ page.previous.date | date: '%B %-d, %Y' }}
-                <div id="stats" class="post-stats"></div>
+            <div class="pull-right">
+                {% if page.previous %}
+                Previous checkin: <a href="{{site.baseurl}}{{page.previous.url}}">{{ page.previous.date | date: '%B %-d, %Y' }}</a>
+                {% endif %}
+                <div id="stats" class="post-stats">
+                    {% if page.mileage %}
+                    <div>Miles Traveled: {{ page.mileage }}</div>
+                    {% endif %}
+                </div>
             </div>
-            {% endif %}
 
             <p class="meta">{{ page.date | date: '%A, %B %-d, %Y'}}<br/>
-            {{ page.date | date: '%-I:%M %p'}} {{page.timezone}}</p>
+            {% assign time = page.date | date: '%-I:%M%p' %}
+            {% if time != "12:00AM" %}
+            {{ page.date | date: '%-I:%M %p'}} {{page.timezone}}
+            {% endif %}</p>
 
-            <div id="map" class="post-map" data-stops="{% for location in page.locations %}{{ location }}|{% endfor %}" {% if page.travelmode != "" %}data-travelmode="{{ page.travelmode }}"{% endif %}></div>
+            <div id="map" class="post-map"
+            {% if page.polyline %}
+             data-path="{{ page.polyline }}"
+            {% endif %}
+             data-stops="{% for location in page.locations %}{{ location }}|{% endfor %}" {% if page.travelmode != "" %}data-travelmode="{{ page.travelmode }}"{% endif %}
+            ></div>
+
+            <div id="elevation" class="graph"></div>
+            
+            {% unless page.polyline %}
+             <div id="temp"></div>
+            {% endunless %}
 
             <div class="post">
             {{ content }}
@@ -54,7 +73,18 @@ layout: default
     </div>
 
     <script type="text/template" id="statsTemplate">
-        <% if(!!stats.MilesTraveled) { %>
-            <div>Miles Traveled: <%= stats.MilesTraveled %></div>
+        <% if(!!model.MilesTraveled) { %>
+            <div>Miles Traveled: <%= model.MilesTraveled %></div>
         <% } %>
+    </script>
+    <script type="text/template" id="tempTemplate">
+        <div class="alert alert-warning" role="alert">
+            polyline: <%= model.polyline %><br/>
+            elevation: <%= model.elevation %><br/>
+            mileage: <%= model.mileage %>
+        </div>
+    </script>
+
+    <script type="text/javascript">
+     var elevationData = {{ page.elevation | jsonify }};
     </script>

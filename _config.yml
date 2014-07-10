@@ -1,5 +1,6 @@
-name: Tom's Journal
+name: Tom's Journey
 description: Tom Shriver's Travel Journal.
 markdown: redcarpet
 permalink: /:title
 baseurl: /toms-journal
+url: http://thaddeusbort.github.io/toms-journal

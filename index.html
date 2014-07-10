@@ -11,11 +11,14 @@ layout: default
                 </div>
 
                 <div class="col-lg-12">
-                    <div id="stats" class="home-stats"></div>
+                    <div id="map" class="home-map"
+                    data-path="{% for post in site.posts reversed %}{{ post.polyline }}-{% endfor %}"
+                    data-stops="{% for post in site.posts reversed %}{% if post.travelmode != 'Flying' %}{% for location in post.locations %}{{ location }}|{% endfor %}{% endif %}{% endfor %}Santiago,Spain"></div>
+
+                    <div id="elevation" class="graph"></div>
                 </div>
-                
                 <div class="col-lg-12">
-                    <div id="map" class="home-map" data-stops="{% for post in site.posts reversed %}{% if post.travelmode != 'Flying' %}{% for location in post.locations %}{{ location }}|{% endfor %}{% endif %}{% endfor %}Santiago,Spain"></div>
+                    <div id="stats" class="home-stats"></div>
                 </div>
             </div>
         </div>
@@ -48,10 +51,25 @@ layout: default
 
 
     <script type="text/template" id="statsTemplate">
-        <% if(!!stats.MilesTraveled) { %>
-            <div>Day <%= stats.Day %></div>
-            <div>Miles Traveled: <%= stats.MilesTraveled %></div>
-            <div>Miles Left: <%= stats.MilesLeft %></div>
-            <div>Needed Pace: <%= stats.NeededPace %>mi/day</div>
+        <% if(!!model.milesTraveled) { %>
+            <div>Miles Traveled: <%= model.milesTraveled %></div>
+            <div>Miles Left: <%= model.milesLeft %></div>
+            <div>Percent Complete: <%= model.percentComplete %></div>
+            <div>Needed Pace: <%= model.neededPace %>mi/day</div>
         <% } %>
+    </script>
+
+    <script type="text/javascript">
+     var elevationData = [];
+     {% for post in site.posts reversed %}
+        {% if post.elevation %}
+            elevationData.push({{ post.elevation | jsonify}});
+        {% endif %}
+     {% endfor %}
+     var mileage = 
+     {% for post in site.posts reversed %}{% if post.mileage %}{{ post.mileage }} + {% endif %}
+     {% endfor %}0;
+     var lastCheckin = new Date(
+     {% for post in site.posts %}{% if forloop.first == true %}"{{ post.date | date: '%B %-d, %Y' }}"{% endif %}
+     {% endfor %});
     </script>

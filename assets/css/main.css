@@ -185,10 +185,13 @@ hr {
 
 #map {
   width:100%; height:200px; 
-  margin-bottom: 50px;
+  margin-bottom: 10px;
 }
 #map.home-map {
-  height:500px;
+  height:350px;
+}
+.post {
+  padding-top: 50px;
 }
 .post-map {
 }
@@ -198,4 +201,40 @@ hr {
 .imagepop img {
   width: 300px;
   padding: 20px;
+}
+
+/* d3 Styles */
+path.line {
+  stroke: dodgerblue;
+  stroke-width: 0;
+  fill: none;
+}
+path.area {
+  fill: steelblue;
+}
+.axis { shape-rendering: crispEdges; }
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: #000;
+}
+.hover-line {
+  stroke: #6E7B8B;
+}
+.graph text.annotation {
+    font-size: 10px;
+    font-weight: bold;
+    stroke: none;
+    opacity: 1;
+}
+
+.graph text.title {
+    font-size: 13px;
+    font-weight: bold;
+    stroke: none;
+    opacity: 1;
+}
+.graph .background-rect {
+    stroke:none;
+    fill:rgb(245,245,245);
+    fill-opacity:1;
 }
