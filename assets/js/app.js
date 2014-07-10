@@ -262,7 +262,7 @@ function kmToMi(val) {
     return parseFloat(val*0.000621371).toFixed(2);
 }
 
-var graph, x, hoverLineGroup, hoverLineTextValue;
+var graph, x, hoverLineGroup, hoverLineTextValue, graphArea, area;
 var m = [0,0,0,80];
 function buildElevationGraph() {
     if(!elevationData[0].e) {
@@ -270,7 +270,6 @@ function buildElevationGraph() {
     }
 
     var el = DOM.elevation;
-    
     var width = el.width()-m[1]-m[3];
     var height = 150;
 
@@ -281,7 +280,7 @@ function buildElevationGraph() {
             , d3.max(elevationData, function(d) { return d.e; })]);
 
     
-    var area = d3.svg.area()
+    area = d3.svg.area()
         .x(function(d,i) { return x(i); })
         .y0(function() { return height - m[2]; })
         .y1(function(d) { return y(d.e); })
@@ -305,13 +304,7 @@ function buildElevationGraph() {
 
     // add line and area
     graph.append("path").attr("d", line(elevationData)).attr("class", "line");
-    graph.append("path").attr("d", area(elevationData)).attr("class", "area");
-
-    var area = d3.svg.area()
-        .x(function(d,i) { return x(i); })
-        .y0(function() { return height - m[2]; })
-        .y1(function(d) { return y(d.e); })
-        .defined(function(d) { return isFinite(d.e); });
+    graphArea = graph.append("path").attr("d", area(elevationData)).attr("class", "area");
 
     // do these last so they show up on top!
     hoverLineGroup = graph.append("g").attr("class", "hover-line")
@@ -319,7 +312,7 @@ function buildElevationGraph() {
     var hoverLine = hoverLineGroup.append("line")
         .attr("x1", 1).attr("x2", 1)
         .attr("y1", m[0]).attr("y2", height - m[2]);
-    //hoverLineGroup.classed("hide", true);
+    
     var hoverLineTextValueY = m[0] + 10;
     // var hoverLineTextValueRect = hoverLineGroup.append("rect")
     //             .attr("x", 3).attr("y", hoverLineTextValueY - 10)
@@ -332,6 +325,18 @@ function buildElevationGraph() {
                 .text("");
     //moveMarker = makeMarker(null, null, startIcon);
     //moveMarker = addm(elevationData[0].l, null, startIcon);
+}
+
+$(window).on('resize', function() { redrawElevationGraph(); });
+function redrawElevationGraph() {
+    var el = DOM.elevation;
+    var width = el.width()-m[1]-m[3];
+    var height = 150;
+
+    x = d3.scale.linear().range([0, width])
+        .domain([0, elevationData.length]);
+    graph.attr("width", width + m[1] + m[3]);
+    graphArea.attr("d", area(elevationData)).attr("class", "area");
 }
 
 var moveMarker;
@@ -372,7 +377,6 @@ function handleMouseOverGraph(event) {
         var hoveredIndex = parseInt(x.invert(mouseX));
         
         hoverLineGroup.attr("transform", "translate("+mouseX+")");
-        //console.log(mouseX + " " + dimensions.width + " " + hoveredIndex);
         if(oldIndex !== hoveredIndex) {
             oldIndex = hoveredIndex;
 
