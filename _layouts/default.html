@@ -40,8 +40,10 @@
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
                 <li {% if page.url == '/index.html' %}class="active"{% endif %}><a href="{{site.baseurl}}/">Home</a></li>
-                <!-- <li {% if page.url contains '/blog' %}class="active"{% endif %}><a href="{{site.baseurl}}blog">Blog</a></li> -->
                 <li {% if page.url contains '/getting-there' %}class="active"{% endif %}><a href="{{site.baseurl}}/getting-there">About</a></li>
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                <li><a data-toggle="modal" href="#signupModal">Signup for email updates</a></li>
               </ul>
             </div><!--/.nav-collapse -->
           </div>
@@ -73,5 +75,39 @@
             var startIcon = "{{site.baseurl}}/assets/img/marker_start.png";
             var stopIcon = "{{site.baseurl}}/assets/img/marker_stop.png";
         </script>
+
+        <div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">Signup For Email Updates</h4>
+              </div>
+              <div class="modal-body">
+                <!-- Begin MailChimp Signup Form -->
+<link href="//cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    #mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+</style>
+<div id="mc_embed_signup">
+<form action="//teddyandmandy.us2.list-manage.com/subscribe/post?u=748a202689d6ec21528c7a231&amp;id=3e7704bad3" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+    <label for="mce-EMAIL">Enter your email address to be notified of updates</label>
+    <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+    <div style="position: absolute; left: -5000px;"><input type="text" name="b_748a202689d6ec21528c7a231_3e7704bad3" tabindex="-1" value=""></div>
+    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+</form>
+</div>
+
+<!--End mc_embed_signup-->
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
     </body>
 </html>
