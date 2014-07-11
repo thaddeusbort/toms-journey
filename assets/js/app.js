@@ -5,6 +5,10 @@ var isHomepage = $(".home-map").length > 0;
 var dottedLine = [{ offset: '0', repeat: '10px', icon: { path: 'M 0,0 0,0.1', strokeOpacity: 1, strokeColor: '#335599', scale: 4 }}];
 var dashedLine = [{ offset: '0', repeat: '20px', icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#E84813', scale: 4 }}];
 
+var startIcon = assetsPath + "img/marker_start.png";
+var stopIcon = assetsPath + "img/marker_stop.png";
+var santiagoIcon = assetsPath + "img/marker_santiago.png";
+
 var DOM = {
     imgpop: $(".imagepop"),
     map: $("#map"),
@@ -75,7 +79,8 @@ $(function() {
             //     addMarker(element, path, line);
             // });
             moveMarker = addMarker(_.first(stops), null, null, startIcon);
-            addMarker(_.last(stops), null, null, stopIcon);
+            addMarker(_.last(stops), null, null
+                , isHomepage ? santiagoIcon : stopIcon);
 
             buildElevationGraph();
 
@@ -350,10 +355,9 @@ function redrawElevationGraph() {
 var moveMarker;
 $(DOM.elevation).on("mousemove touchmove", function(event) {
 //    moveMarker.setVisible(true);
-    event.preventDefault();
     handleMouseOverGraph(event);
 });
-$(DOM.elevation).on("mouseleave touchend", function(event) {
+$(DOM.elevation).on("mouseleave touchend touchcancel", function(event) {
 //    moveMarker.setVisible(false);
     moveMarker.setPosition(elevationData[0].l);
 });
@@ -381,6 +385,7 @@ function handleMouseOverGraph(event) {
         mouseX = dimensions.width - m[3] - 5;
 
     if(oldMouseX !== mouseX) {
+        event.preventDefault();
         oldMouseX = mouseX;
         var hoveredIndex = parseInt(x.invert(mouseX));
         
