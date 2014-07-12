@@ -11,9 +11,7 @@ layout: default
                 </div>
 
                 <div class="col-lg-12">
-                    <div id="map" class="home-map"
-                    data-path="{% for post in site.posts reversed %}{{ post.polyline }}-{% endfor %}"
-                    data-stops="{% for post in site.posts reversed %}{% if post.travelmode != 'Flying' %}{% for location in post.locations %}{{ location }}|{% endfor %}{% endif %}{% endfor %}Santiago,Spain"></div>
+                    <div id="map" class="home-map"></div>
 
                     <div id="elevation" class="graph home-graph"></div>
                 </div>
@@ -34,14 +32,18 @@ layout: default
                 <div class="col-sm-6">
                     <h3><a href="{{site.baseurl}}{{ post.url }}">{{ post.title }}</a></h3>
                     <!-- <div>{{ post.categories }}</div> -->
-                    {% if post.travelmode == "Flying" %}{% else %}
-                    <div>{{ post.locations | array_to_sentence_string | remove: ", Spain" | truncatewords:7 }}</div>
-                    {% endif %}
+                    <div class="tags">
+                    {% for town in post.data.towns %}
+                    {{ town.name | remove: ", Spain" }}{% unless forloop.last %} | {% endunless %}
+                    {% endfor %}
+                    </div>
                     <div class="date">{{ post.date | date_to_string }}</div>
                 </div>
                 <div class="col-sm-6">
                     <div>{{ post.content | strip_html | truncatewords:50 }}</div>
-                    <!-- <div>{{ post.locations | array_to_sentence_string}}</div> -->
+                    {% if post.content == "" %}
+                    <br/><br/>
+                    {% endif %}
                     <a href="{{site.baseurl}}{{ post.url }}">READ MORE</a>
                 </div>
             </div>
@@ -66,16 +68,21 @@ layout: default
     </script>
 
     <script type="text/javascript">
-     var elevationData = [];
-     {% for post in site.posts reversed %}
-        {% if post.elevation %}
-            elevationData.push({{ post.elevation | jsonify}});
-        {% endif %}
-     {% endfor %}
-     var mileage = 
-     {% for post in site.posts reversed %}{% if post.mileage %}{{ post.mileage }} + {% endif %}
-     {% endfor %}0;
-     var lastCheckin = new Date(
-     {% for post in site.posts %}{% if forloop.first == true %}"{{ post.date | date: '%B %-d, %Y' }}"{% endif %}
-     {% endfor %});
+        var homeData, postData;
+        function onLoad() {
+            homeData = [];
+            {% for post in site.posts reversed %}
+            {% if post.data %}
+                homeData.push({{ post.data | jsonify }});
+            {% endif %}
+            {% endfor %}
+
+            postData = {
+                mileage: _.reduce(_.map(homeData, function(val) { return !!val.mileage ? val.mileage : 0; }), function(memo, val) { return memo+val; }),
+                lastCheckin: new Date({% for post in site.posts %}{% if forloop.first == true %}"{{ post.date | date: '%B %-d, %Y' }}"{% endif %}{% endfor %}),
+                paths: _.map(_.filter(homeData, function(val) { return !!val.polyline; }), function(val) { return val.polyline; }),
+                elevation: _.flatten(_.map(_.filter(homeData, function(val) { return !!val.elevation; }), function(val) { return val.elevation; })),
+                towns: _.flatten(_.map(_.filter(homeData, function(val) { return !!val.towns; }), function(val) { return val.towns; }))
+            }
+        }
     </script>

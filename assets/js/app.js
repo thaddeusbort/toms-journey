@@ -1,13 +1,14 @@
-var map, geocoder, bounds, markersArray;
-var stops;
+var map, bounds;
 var isHomepage = $(".home-map").length > 0;
 
 var dottedLine = [{ offset: '0', repeat: '10px', icon: { path: 'M 0,0 0,0.1', strokeOpacity: 1, strokeColor: '#335599', scale: 4 }}];
 var dashedLine = [{ offset: '0', repeat: '20px', icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#E84813', scale: 4 }}];
 
-var startIcon = assetsPath + "img/marker_start.png";
-var stopIcon = assetsPath + "img/marker_stop.png";
-var santiagoIcon = assetsPath + "img/marker_santiago.png";
+var icons = {
+    start: assetsPath + "img/marker_start.png",
+    stop: assetsPath + "img/marker_stop.png",
+    santiago: assetsPath + "img/marker_santiago.png"
+}
 
 var DOM = {
     imgpop: $(".imagepop"),
@@ -20,87 +21,65 @@ $(function() {
     // setup any images with magnific popup
      DOM.imgpop.magnificPopup({type:"image"});
 
+     if(!postData)
+        return;
+
+    var santiago_location = { lat: 42.8802049, lng: -8.5447697 };
     // if there is a map div, setup the google maps api
     var mapDiv = DOM.map;
     if(mapDiv.length > 0) {
         map = buildMap(mapDiv[0]);
 
         bounds = new google.maps.LatLngBounds();
-        markersArray = [];
-        var flying = mapDiv.data("travelmode") == "Flying";
-        var encodedPath = mapDiv.data("path");
-        //var mileage = mapDiv.data("mileage");
-        geocoder = new google.maps.Geocoder();
-        if(flying || !encodedPath) {
-            
-            if(isHomepage) {
-                alert("Add encoded paths to all posts!");
-                return;
-            }
-            // if stops are defined, add markers and draw a line
-            stops = mapDiv.data("stops");
-            if(!!stops) {
-                stops = _.filter(stops.split("|"), function(val) { return val.trim() != ""; });
-                
-                if(stops.length > 0) {
-                    if(flying) {
-                        var line = drawLine(map, null, true, dashedLine);
-                        var path = [];
-                        _.each(stops, function(element, index, list) {
-                            console.log("adding marker for " + element);
-                            addMarker(element, path, line);
-                        });
-                    } else {
-                        getWalkingDirections(stops);
-                    }
-                }
-            }
-        } else {
-            var paths = [];
-            if(isHomepage) {
-                paths = _.filter(encodedPath.split("-"), function(val) { return val.trim() != ""; });
-            } else {
-                paths[0] = encodedPath;
-            }
 
-            _.each(paths, function(path, index, list) {
+        if(isHomepage) {
+            // TODO: any parsing that needs to be done to make postData object usable
+        }
+
+        if(postData.flights) {
+            // if flights are defined, add markers and draw a geodesic line between them
+            var line = drawLine(map, null, dashedLine, true);
+            var path = [];
+            var geocoder = new google.maps.Geocoder();
+            _.each(postData.flights, function(flight, index, list) {
+                addMarker(geocoder, flight, path, line);
+            });
+        } else {
+            if(!postData.paths)
+                postData.paths = [postData.polyline];
+
+            // draw route paths
+            _.each(postData.paths, function(path, index, list) {
                 var decodedPath = google.maps.geometry.encoding.decodePath(path);
                 drawLine(map, decodedPath);
             });
 
-            // for (var i = 0; i < decodedPath.length; i++) {
-            //     bounds.extend(decodedPath[i]);
-            // }
-            // map.fitBounds(bounds);
-            stops = mapDiv.data("stops");
-            stops = _.filter(stops.split("|"), function(val) { return val.trim() != ""; });
-            // _.each(stops, function(element, index, list) {
-            //     console.log("adding marker for " + element);
-            //     addMarker(element, path, line);
-            // });
-            moveMarker = addMarker(_.first(stops), null, null, startIcon);
-            addMarker(_.last(stops), null, null
-                , isHomepage ? santiagoIcon : stopIcon);
+            // add start and end icons
+            moveMarker = makeMarker(_.first(postData.towns).gps, null, icons.start);
+            if(isHomepage)
+                makeMarker(santiago_location, null, icons.santiago);
+            else
+                makeMarker(_.last(postData.towns).gps, null, icons.stop);
 
             buildElevationGraph();
 
             if(isHomepage) {
                 var endDate = new Date(2014, 6, 25);
 
-                if(lastCheckin < endDate && !!mileage && mileage > 0) {
+                if(postData.lastCheckin < endDate && !!postData.mileage && postData.mileage > 0) {
                     var TOTAL_MILES = 460;
                     var TOTAL_DAYS = 22;
-                    var timeDiff = Math.abs(endDate.getTime() - lastCheckin.getTime());
+                    var timeDiff = Math.abs(endDate.getTime() - postData.lastCheckin.getTime());
                     var daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
                     var daysUsed = TOTAL_DAYS - daysLeft;
 
                     var model = {
-                        milesTraveled: parseInt(mileage),
-                        milesLeft: parseInt(TOTAL_MILES-mileage),
-                        percentTraveled: parseInt((mileage/TOTAL_MILES)*100),
+                        milesTraveled: parseInt(postData.mileage),
+                        milesLeft: parseInt(TOTAL_MILES-postData.mileage),
+                        percentTraveled: parseInt((postData.mileage/TOTAL_MILES)*100),
                         percentDays: parseInt((daysUsed/TOTAL_DAYS)*100),
                         daysLeft: daysLeft,
-                        maxElevation: _.max(_.pluck(elevationData, "e"))
+                        maxElevation: _.max(_.pluck(postData.elevation, "e"))
                     };
                     model.neededPace = parseFloat(model.milesLeft/daysLeft).toFixed(2);
                     useTemplate("statsTemplate", "stats", model);
@@ -127,7 +106,7 @@ function buildMap(mapElement) {
     return new google.maps.Map(mapElement, myOptions);
 }
 
-function drawLine(map, path, geodesic, lineStyle) {
+function drawLine(map, path, lineStyle, geodesic) {
     if(typeof(geodesic)==='undefined') geodesic = false;
     if(typeof(lineStyle)==='undefined') lineStyle = dottedLine;
     if(!path) path = [];
@@ -141,78 +120,43 @@ function drawLine(map, path, geodesic, lineStyle) {
     });
 }
 
-function getWalkingDirections(stops) {
-    var origin = stops[0];
-    var destination = stops[stops.length-1];
-    var waypoints = _.map(_.initial(_.last(stops, stops.length-1))
-        , function(val) { return {
-            location: val,
-            stopover: false
-        }
-    });
-    if(waypoints.length > 8) {
-        console.log("Too many waypoints specified, reducing to prevent Google Maps error.");
-        waypoints = _.last(waypoints, 8);
-    }
-    if(isHomepage && waypoints.length > 0) {
-        _.last(waypoints).stopover = true;
-    }
-
-    var directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers:true});
-    var directionsService = new google.maps.DirectionsService();
-    directionsDisplay.setMap(map);
-    var request = {
-        origin: origin,
-        destination: destination,
-        waypoints: waypoints,
-        optimizeWaypoints: true,
-        travelMode: google.maps.TravelMode.WALKING
-    };
-    directionsService.route(request, function(response, status) {
-        if (status == google.maps.DirectionsStatus.OK) {
-            directionsDisplay.setDirections(response);
-            getStats(response);
-        } else {
-            console.log("Error getting route");
-        }
-    });
-}
-
-function addMarker(location, path, line, icon, showInfo) {
-    var marker = makeMarker(null, null, icon);
+function addMarker(geocoder, location, path, line) {
+    var marker = makeMarker(); // empty marker, set location below
     geocoder.geocode({'address': location}, function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
             var latlng = results[0].geometry.location;
             bounds.extend(latlng);
             map.fitBounds(bounds);
-            //var marker = makeMarker(latlng, null, icon);
             marker.setPosition(latlng);
-            markersArray.push(marker);
 
-            if(showInfo) {
-                var infowindow = new google.maps.InfoWindow({
-                   content: location
-                });
-                infowindow.open(map, marker);
-            }
+            // if(showInfo) {
+            //     var infowindow = new google.maps.InfoWindow({
+            //        content: location
+            //     });
+            //     infowindow.open(map, marker);
+            // }
 
             // if drawing a line between markers, update line now
             if(!!path && !!line) {
-                var idx = _.indexOf(stops, location);
+                var idx = _.indexOf(postData.flights, location);
                 path[idx] = latlng;
-                if(path.length == stops.length && _.every(path, function(val) { return !!val; })) {
+                if(path.length == postData.flights.length && _.every(path, function(val) { return !!val; })) {
                     line.setPath(path);
                     map.panBy(0, -50);
                 }
             }
         } else {
-          alert('Geocode was not successful for the following reason: '
-            + status);
+          alert('Geocode was not successful for the following reason: ' + status);
         }
     });
     return marker;
 }
 function makeMarker(position, title, icon) {
+    if(!!position) {
+        var latlng = new google.maps.LatLng(position.lat, position.lng);
+        bounds.extend(latlng);
+        map.fitBounds(bounds);
+    }
     return new google.maps.Marker({
         map: map,
         position: position,
@@ -221,68 +165,29 @@ function makeMarker(position, title, icon) {
     });
 }
 
-function getStats(response) {
-    console.log(response);
-
-    if(!!response.routes && response.routes.length > 0) {
-        var route = response.routes[0];
-//        var legs = route.legs;
-        // add markers at start and end
-//        makeMarker(legs[0].start_location, "Start");
-//        if(legs.length > 1) {
-//            makeMarker(legs[0].end_location, "Current");
-//            makeMarker(legs[1].end_location, "End");
-//            showHomeStats(legs);
-//        } else {
-//            makeMarker(legs[0].end_location, "End");
-//            showDayStats(legs);
-//        }
-
-        var elevator = new google.maps.ElevationService();
-        elevator.getElevationAlongPath({
-            path: route.overview_path,
-            samples: 100
-        }, function(results, status) {
-            // TODO: output the elevation data so we can save it to the post file
-            var model = {
-                polyline: route.overview_polyline,
-                elevation: JSON.stringify(_.map(results, function(val) { return { e:parseInt(val.elevation), l: { lat:val.location.k, lng:val.location.B }}})),
-                mileage: kmToMi(route.legs[0].distance.value)
-            };
-            console.log(model);
-            useTemplate("tempTemplate", "temp", model);
-        });
-    }
-}
-
 function useTemplate(templateId, containerId, model) {
     var template = _.template($("#" + templateId).html());
-//    console.log(template({model:model}));
     $("#" + containerId).html(template({
         model: model
     }));
 }
 
-function kmToMi(val) {
-    return parseFloat(val*0.000621371).toFixed(2);
-}
-
 var graph, x, hoverLineGroup, hoverLineTextValue, graphArea, area;
 var m = [0,0,0,55];
 function buildElevationGraph() {
-    if(!elevationData[0].e) {
-        elevationData = _.flatten(elevationData);
-    }
+    // if(!postData.elevation[0].e) {
+    //     postData.elevation = _.flatten(postData.elevation);
+    // }
 
     var el = DOM.elevation;
     var width = el.width()-m[1]-m[3];
     var height = 150;
 
     x = d3.scale.linear().range([0, width])
-        .domain([0, elevationData.length]);
+        .domain([0, postData.elevation.length]);
     var y = d3.scale.linear().range([height, 0])
-        .domain([d3.min(elevationData, function(d) { return d.e; })
-            , d3.max(elevationData, function(d) { return d.e; })]);
+        .domain([d3.min(postData.elevation, function(d) { return d.e; })
+            , d3.max(postData.elevation, function(d) { return d.e; })]);
 
     
     area = d3.svg.area()
@@ -316,8 +221,8 @@ function buildElevationGraph() {
         .text("elevation (m)");
 
     // add line and area
-    graph.append("path").attr("d", line(elevationData)).attr("class", "line");
-    graphArea = graph.append("path").attr("d", area(elevationData)).attr("class", "area");
+    graph.append("path").attr("d", line(postData.elevation)).attr("class", "line");
+    graphArea = graph.append("path").attr("d", area(postData.elevation)).attr("class", "area");
 
     // do these last so they show up on top!
     hoverLineGroup = graph.append("g").attr("class", "hover-line")
@@ -336,30 +241,45 @@ function buildElevationGraph() {
                 .attr("text-anchor", "start")
                 .attr("class", "annotation")
                 .text("");
-    //moveMarker = makeMarker(null, null, startIcon);
-    //moveMarker = addm(elevationData[0].l, null, startIcon);
+
+    // _.each(postData.towns, function(town, index, list) {
+    //     var lineGroup = graph.append("g");
+    //     lineGroup.append("line")
+    //         .attr("x1", 1).attr("x2", 1)
+    //         .attr("y1", m[0]).attr("y2", height - m[2]);
+    //     lineGroup.append("text")
+    //         .attr("x", 6).attr("y", 30)
+    //         .text(town.name.replace(", Spain",""));
+
+    //     var val = _.find(postData.elevation, function(val) { return val.l.lat == town.gps.lat && val.l.lng == town.gps.lng; })
+    //     var idx = _.indexOf(postData.elevation, val);
+    //     console.log(idx);
+    //     lineGroup.attr("transform", "translate(" + x(idx) + ")");
+    // });
 }
 
 $(window).on('resize', function() { redrawElevationGraph(); });
 function redrawElevationGraph() {
-    var el = DOM.elevation;
-    var width = el.width()-m[1]-m[3];
-    var height = 150;
+    if(postData) {
+        var el = DOM.elevation;
+        var width = el.width()-m[1]-m[3];
+        var height = 150;
 
-    x = d3.scale.linear().range([0, width])
-        .domain([0, elevationData.length]);
-    graph.attr("width", width + m[1] + m[3]);
-    graphArea.attr("d", area(elevationData)).attr("class", "area");
+        x = d3.scale.linear().range([0, width])
+            .domain([0, postData.elevation.length]);
+        graph.attr("width", width + m[1] + m[3]);
+        graphArea.attr("d", area(postData.elevation)).attr("class", "area");
+    }
 }
 
 var moveMarker;
 $(DOM.elevation).on("mousemove touchmove", function(event) {
-//    moveMarker.setVisible(true);
+    hoverLineGroup.classed("hide", false);
     handleMouseOverGraph(event);
 });
 $(DOM.elevation).on("mouseleave touchend touchcancel", function(event) {
-//    moveMarker.setVisible(false);
-    moveMarker.setPosition(elevationData[0].l);
+    hoverLineGroup.classed("hide", true);
+    moveMarker.setPosition(postData.elevation[0].l);
 });
 var initDimensions = function(el) {
     // automatically size to the container using JQuery to get width/height
@@ -393,7 +313,7 @@ function handleMouseOverGraph(event) {
         if(oldIndex !== hoveredIndex) {
             oldIndex = hoveredIndex;
 
-            var val = elevationData[hoveredIndex];
+            var val = postData.elevation[hoveredIndex];
             hoverLineTextValue.text(parseInt(val.e) + "m");
             moveMarker.setPosition(val.l);
         }
@@ -420,10 +340,9 @@ function buildArcGauge(value, label, hoverValue, hoverMax, hoverLabel) {
           .append('g')
             .attr('transform', 'translate(' + (width / 2) + ',' + height / 2 + ')')
             .on('mouseover', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
-            .on('touchstart', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
+            .on('mousedown', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
             .on('mouseleave', function (e) { animateArc(value, label, fastDuration, normalColor); })
-            .on('touchend', function (e) { animateArc(value, label, fastDuration, normalColor); })
-            .on('touchcancel', function (e) { animateArc(value, label, fastDuration, normalColor); });
+            .on('mouseup', function (e) { animateArc(value, label, fastDuration, normalColor); });
 
     arc = d3.svg.arc()
       .innerRadius(radius-20)

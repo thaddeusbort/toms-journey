@@ -3,8 +3,8 @@ layout: post
 title:  Getting There
 date:   2014-07-01 09:49:00 EDT
 timezone: EDT
-locations: ["Alden, NY", "Toronto, ON", "Barcelona, Spain"]
-travelmode: Flying
+data:
+ flights: ["Alden, NY", "Toronto, ON", "Barcelona, Spain"]
 ---
 
 <a class="imagepop pull-right" href="{{site.url}}/assets/img/ready_to_go.jpg"><img src="{{site.url}}/assets/img/ready_to_go.jpg" alt="Ready to go!"></a>
