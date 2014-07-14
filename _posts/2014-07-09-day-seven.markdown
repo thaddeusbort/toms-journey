@@ -4,7 +4,7 @@ title:  Day Seven
 date:   2014-07-09 20:59:00 CEST
 timezone: CEST
 towns: ["Puente la Reina, Spain",
-			"Logrono, Spain",
+            "Logrono, Spain",
             "Burgos, Spain"]
 data:
  mileage: 112.64
