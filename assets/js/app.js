@@ -1,4 +1,4 @@
-var map, bounds;
+var map, bounds, markerArray, infowindow;
 var isHomepage = $(".home-map").length > 0;
 
 var dottedLine = [{ offset: '0', repeat: '10px', icon: { path: 'M 0,0 0,0.1', strokeOpacity: 1, strokeColor: '#335599', scale: 4 }}];
@@ -7,12 +7,17 @@ var dashedLine = [{ offset: '0', repeat: '20px', icon: { path: 'M 0,-1 0,1', str
 var icons = {
     start: assetsPath + "img/marker_start.png",
     stop: assetsPath + "img/marker_stop.png",
-    santiago: assetsPath + "img/marker_santiago.png"
+    santiago: assetsPath + "img/marker_santiago.png",
+    town: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 5
+    }
 }
 
 var DOM = {
     imgpop: $(".imagepop"),
     map: $("#map"),
+    maplabel: $("#map-label"),
     elevation: $("#elevation"),
     arcgauge: function() { return $(".arcgauge"); }
 };
@@ -26,9 +31,8 @@ $(function() {
 
     var santiago_location = { lat: 42.8802049, lng: -8.5447697 };
     // if there is a map div, setup the google maps api
-    var mapDiv = DOM.map;
-    if(mapDiv.length > 0) {
-        map = buildMap(mapDiv[0]);
+    if(DOM.map.length > 0) {
+        map = buildMap(DOM.map[0]);
 
         bounds = new google.maps.LatLngBounds();
 
@@ -63,6 +67,8 @@ $(function() {
 
             buildElevationGraph();
 
+            infowindow = new google.maps.InfoWindow();
+            markerArray = [];
             if(isHomepage) {
                 var endDate = new Date(2014, 6, 25);
 
@@ -86,6 +92,29 @@ $(function() {
 
                     buildArcGauge(model.percentTraveled, "% traveled", daysUsed, TOTAL_DAYS, "days walking");
                 }
+
+                // draw circles for each starting town
+                _.each(homeData, function(hdo, index, list) {
+                    if(!!hdo.towns && hdo.towns.length > 0) {
+                        var town = _.last(hdo.towns);
+                        var marker = makeMarker(town.gps, null, icons.town);
+                        marker.setVisible(false);
+                        google.maps.event.addListener(marker, "mouseover", function() { showMarkerDetails(marker, false, false, hdo.title); });
+                        google.maps.event.addListener(marker, "mouseout", function() { showMarkerDetails(marker, false, true, hdo.title); });
+                        google.maps.event.addListener(marker, "click", function() { showMarkerDetails(marker, true, false, hdo.title); });
+                        markerArray.push(marker);
+                    }
+                });
+            } else {
+                // draw circles for each town
+                _.each(postData.towns, function(town, index, list) {
+                    var marker = makeMarker(town.gps, null, icons.town);
+                    marker.setVisible(false);
+                    google.maps.event.addListener(marker, "mouseover", function() { showMarkerDetails(marker); });
+                    google.maps.event.addListener(marker, "mouseout", function() { showMarkerDetails(marker, false, true); });
+                    google.maps.event.addListener(marker, "click", function() { showMarkerDetails(marker, true); });
+                    markerArray.push(marker);
+                });
             }
         }
     }
@@ -129,13 +158,6 @@ function addMarker(geocoder, location, path, line) {
             map.fitBounds(bounds);
             marker.setPosition(latlng);
 
-            // if(showInfo) {
-            //     var infowindow = new google.maps.InfoWindow({
-            //        content: location
-            //     });
-            //     infowindow.open(map, marker);
-            // }
-
             // if drawing a line between markers, update line now
             if(!!path && !!line) {
                 var idx = _.indexOf(postData.flights, location);
@@ -165,11 +187,45 @@ function makeMarker(position, title, icon) {
     });
 }
 
+$(DOM.map).on("mousemove touchmove", function(event) { setMarkerVisibility(true); });
+$(DOM.map).on("mouseleave touchend touchcancel", function(event) { setMarkerVisibility(false); });
+function setMarkerVisibility(visibility) {
+    if(!!markerArray) {
+        _.each(markerArray, function(marker, index, list) {
+            marker.setVisible(visibility);
+        });
+    }
+}
+function showMarkerDetails(marker, zoom, hide, title) {
+    //console.log(marker);
+    var position = marker.getPosition();
+    var town = _.find(postData.towns, function(val) { return val.gps.lat == position.k && val.gps.lng == position.B; });
+    if(!!town) {
+        var name = !!title ? title : town.name.replace(", Spain", "");
+        DOM.maplabel.text(name);
+        DOM.maplabel.toggleClass("hide", hide);
+        if(zoom) {
+            map.setZoom(12);
+            map.setCenter(position);
+            
+            if(!title) {
+                var content = useTemplate("markerTemplate", null, town);
+                infowindow.setContent(content);
+                infowindow.open(map, marker);
+            }
+        }
+    }
+}
+
 function useTemplate(templateId, containerId, model) {
     var template = _.template($("#" + templateId).html());
-    $("#" + containerId).html(template({
+    var output =  template({
         model: model
-    }));
+    });
+    if(!!containerId)
+        $("#" + containerId).html(output);
+    else
+        return output;
 }
 
 var graph, x, hoverLineGroup, hoverLineTextValue, graphArea, area;

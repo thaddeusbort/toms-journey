@@ -11,7 +11,10 @@ layout: default
                 </div>
 
                 <div class="col-lg-12">
-                    <div id="map" class="home-map"></div>
+                    <div id="map-container">
+                        <div id="map" class="home-map"></div>
+                        <div id="map-label" class="hide"></div>
+                    </div>
 
                     <div id="elevation" class="graph home-graph"></div>
                 </div>
@@ -74,6 +77,7 @@ layout: default
             {% for post in site.posts reversed %}
             {% if post.data %}
                 homeData.push({{ post.data | jsonify }});
+                homeData[homeData.length-1].title = "{{post.title}}";
             {% endif %}
             {% endfor %}
 

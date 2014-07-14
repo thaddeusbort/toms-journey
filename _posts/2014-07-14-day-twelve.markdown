@@ -30,17 +30,14 @@ data:
      lat: 42.3373375
      lng: -4.602432599999929
   - name: Calzadilla de la Cueza, Spain
-    url: http://en.wikipedia.org/wiki/Calzadilla_de_la_Cueza
     gps:
      lat: 42.3287562
      lng: -4.804442699999981
   - name: Terradillos de Templarios, Spain
-    url: http://en.wikipedia.org/wiki/Terradillos_de_Templarios
     gps:
      lat: 42.362882
      lng: -4.890319500000032
   - name: San Nicolas del Real Camino, Spain
-    url: http://en.wikipedia.org/wiki/San_Nicolas_del_Real_Camino
     gps:
      lat: 42.3635998
      lng: -4.952298000000042
@@ -50,12 +47,10 @@ data:
      lat: 42.3709599
      lng: -5.029949299999998
   - name: Calzadilla de los Hermanillos, Spain
-    url: http://en.wikipedia.org/wiki/Calzadilla_de_los_Hermanillos
     gps:
      lat: 42.4333739
      lng: -5.156891200000018
   - name: Reliegos, Spain
-    url: http://en.wikipedia.org/wiki/Reliegos
     gps:
      lat: 42.474493
      lng: -5.355357400000003
@@ -65,17 +60,15 @@ data:
      lat: 42.4979465
      lng: -5.416209600000002
   - name: Villarente, Spain
-    url: http://en.wikipedia.org/wiki/Villarente
     gps:
      lat: 42.544419
      lng: -5.454847900000004
   - name: Leon, Spain
-    url: http://en.wikipedia.org/wiki/Leon
+    url: http://en.wikipedia.org/wiki/Le%C3%B3n,_Spain
     gps:
      lat: 42.5987263
      lng: -5.567095900000027
   - name: La Virgen del Camino, Spain
-    url: http://en.wikipedia.org/wiki/La_Virgen_del_Camino
     gps:
      lat: 42.580202
      lng: -5.6406813999999486

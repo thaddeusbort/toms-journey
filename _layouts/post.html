@@ -23,7 +23,10 @@ layout: default
             {{ page.date | date: '%-I:%M %p'}} {{page.timezone}}
             {% endif %}</p>
 
-            <div id="map" class="post-map"></div>
+            <div id="map-container">
+                <div id="map" class="post-map"></div>
+                <div id="map-label" class="hide"></div>
+            </div>
 
             <div id="elevation" class="graph"></div>
             
@@ -79,4 +82,12 @@ layout: default
      {% unless page.data %}
      var towns = {{ page.towns | jsonify }};
      {% endunless %}
+    </script>
+    <script type="text/template" id="markerTemplate">
+        <div>
+            <h4><%= model.name %></h4>
+            <% if(model.url) { %>
+                <a href="<%= model.url %>" target="_blank">link</a>
+            <% } %>
+        </div>
     </script>
