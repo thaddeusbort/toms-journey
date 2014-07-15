@@ -78,7 +78,7 @@ layout: default
             {% if post.data %}
                 homeData.push({{ post.data | jsonify }});
                 homeData[homeData.length-1].title = "{{post.title}}";
-                homeData[homeData.length-1].url = "{{post.url}}";
+                homeData[homeData.length-1].url = "{{site.baseurl}}{{post.url}}";
             {% endif %}
             {% endfor %}
 
