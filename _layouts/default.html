@@ -83,6 +83,18 @@
         {% endif %}
         {% endunless %}
 
+        <script type="text/template" id="markerTemplate">
+            <div id="map-info-window">
+                <h4><strong><%= model.name %></strong></h4>
+                <% if(model.isexternal) { %>
+                    <a href="<%= model.url %>" class="pop" target="_blank">more info</a>
+                <% } else { %>
+
+                  <a href="<%= model.url %>">view post</a>
+                <% } %>
+            </div>
+        </script>
+
         <div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">

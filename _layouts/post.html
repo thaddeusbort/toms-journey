@@ -41,7 +41,7 @@ layout: default
                 {% for town in page.data.towns %}
                     <li>
                     {% if town.url %}
-                    <a href="{{ town.url }}" target="_blank">{{ town.name }}</a>
+                    <a href="{{ town.url }}" class="pop" target="_blank">{{ town.name }}</a>
                     {% else %}
                     {{ town.name }}
                     {% endif %}
@@ -82,12 +82,4 @@ layout: default
      {% unless page.data %}
      var towns = {{ page.towns | jsonify }};
      {% endunless %}
-    </script>
-    <script type="text/template" id="markerTemplate">
-        <div>
-            <h4><%= model.name %></h4>
-            <% if(model.url) { %>
-                <a href="<%= model.url %>" target="_blank">link</a>
-            <% } %>
-        </div>
     </script>

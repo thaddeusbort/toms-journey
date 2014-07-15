@@ -1,8 +1,8 @@
 var map, bounds, markerArray, infowindow;
 var isHomepage = $(".home-map").length > 0;
 
-var dottedLine = [{ offset: '0', repeat: '10px', icon: { path: 'M 0,0 0,0.1', strokeOpacity: 1, strokeColor: '#335599', scale: 4 }}];
-var dashedLine = [{ offset: '0', repeat: '20px', icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#E84813', scale: 4 }}];
+var dottedLine = [{ offset: "0", repeat: "10px", icon: { path: "M 0,0 0,0.1", strokeOpacity: 1, strokeColor: "#335599", scale: 4 }}];
+var dashedLine = [{ offset: "0", repeat: "20px", icon: { path: "M 0,-1 0,1", strokeOpacity: 1, strokeColor: "#E84813", scale: 4 }}];
 
 var icons = {
     start: assetsPath + "img/marker_start.png",
@@ -16,6 +16,7 @@ var icons = {
 
 var DOM = {
     imgpop: $(".imagepop"),
+    iframepop: $("a.pop"),
     map: $("#map"),
     maplabel: $("#map-label"),
     elevation: $("#elevation"),
@@ -25,6 +26,7 @@ var DOM = {
 $(function() {
     // setup any images with magnific popup
      DOM.imgpop.magnificPopup({type:"image"});
+     setupMagnificIframe(DOM.iframepop);
 
      if(!postData)
         return;
@@ -74,7 +76,7 @@ $(function() {
 
                 if(postData.lastCheckin < endDate && !!postData.mileage && postData.mileage > 0) {
                     var TOTAL_MILES = 460;
-                    var TOTAL_DAYS = 22;
+                    var TOTAL_DAYS = 23;
                     var timeDiff = Math.abs(endDate.getTime() - postData.lastCheckin.getTime());
                     var daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
                     var daysUsed = TOTAL_DAYS - daysLeft;
@@ -87,7 +89,7 @@ $(function() {
                         daysLeft: daysLeft,
                         maxElevation: _.max(_.pluck(postData.elevation, "e"))
                     };
-                    model.neededPace = parseFloat(model.milesLeft/daysLeft).toFixed(2);
+                    model.neededPace = parseFloat(model.milesLeft/daysLeft).toFixed(2).replace(".00", "");
                     useTemplate("statsTemplate", "stats", model);
 
                     buildArcGauge(model.percentTraveled, "% traveled", daysUsed, TOTAL_DAYS, "days walking");
@@ -98,10 +100,10 @@ $(function() {
                     if(!!hdo.towns && hdo.towns.length > 0) {
                         var town = _.last(hdo.towns);
                         var marker = makeMarker(town.gps, null, icons.town);
-                        marker.setVisible(false);
-                        google.maps.event.addListener(marker, "mouseover", function() { showMarkerDetails(marker, false, false, hdo.title); });
-                        google.maps.event.addListener(marker, "mouseout", function() { showMarkerDetails(marker, false, true, hdo.title); });
-                        google.maps.event.addListener(marker, "click", function() { showMarkerDetails(marker, true, false, hdo.title); });
+//                        marker.setVisible(false);
+                        google.maps.event.addListener(marker, "mouseover", function() { showMarkerDetails(marker, false, false, hdo.title, hdo.url); });
+                        google.maps.event.addListener(marker, "mouseout", function() { showMarkerDetails(marker, false, true); });
+                        google.maps.event.addListener(marker, "click", function() { showMarkerDetails(marker, true, false, hdo.title, hdo.url); });
                         markerArray.push(marker);
                     }
                 });
@@ -109,7 +111,7 @@ $(function() {
                 // draw circles for each town
                 _.each(postData.towns, function(town, index, list) {
                     var marker = makeMarker(town.gps, null, icons.town);
-                    marker.setVisible(false);
+//                    marker.setVisible(false);
                     google.maps.event.addListener(marker, "mouseover", function() { showMarkerDetails(marker); });
                     google.maps.event.addListener(marker, "mouseout", function() { showMarkerDetails(marker, false, true); });
                     google.maps.event.addListener(marker, "click", function() { showMarkerDetails(marker, true); });
@@ -136,8 +138,8 @@ function buildMap(mapElement) {
 }
 
 function drawLine(map, path, lineStyle, geodesic) {
-    if(typeof(geodesic)==='undefined') geodesic = false;
-    if(typeof(lineStyle)==='undefined') lineStyle = dottedLine;
+    if(typeof(geodesic)==="undefined") geodesic = false;
+    if(typeof(lineStyle)==="undefined") lineStyle = dottedLine;
     if(!path) path = [];
 
     return new google.maps.Polyline({
@@ -151,7 +153,7 @@ function drawLine(map, path, lineStyle, geodesic) {
 
 function addMarker(geocoder, location, path, line) {
     var marker = makeMarker(); // empty marker, set location below
-    geocoder.geocode({'address': location}, function(results, status) {
+    geocoder.geocode({"address": location}, function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
             var latlng = results[0].geometry.location;
             bounds.extend(latlng);
@@ -168,7 +170,7 @@ function addMarker(geocoder, location, path, line) {
                 }
             }
         } else {
-          alert('Geocode was not successful for the following reason: ' + status);
+          alert("Geocode was not successful for the following reason: " + status);
         }
     });
     return marker;
@@ -187,8 +189,8 @@ function makeMarker(position, title, icon) {
     });
 }
 
-$(DOM.map).on("mousemove touchmove", function(event) { setMarkerVisibility(true); });
-$(DOM.map).on("mouseleave touchend touchcancel", function(event) { setMarkerVisibility(false); });
+//$(DOM.map).on("mousemove touchmove", function(event) { setMarkerVisibility(true); });
+//$(DOM.map).on("mouseleave touchend touchcancel", function(event) { setMarkerVisibility(false); });
 function setMarkerVisibility(visibility) {
     if(!!markerArray) {
         _.each(markerArray, function(marker, index, list) {
@@ -196,8 +198,7 @@ function setMarkerVisibility(visibility) {
         });
     }
 }
-function showMarkerDetails(marker, zoom, hide, title) {
-    //console.log(marker);
+function showMarkerDetails(marker, zoom, hide, title, url) {
     var position = marker.getPosition();
     var town = _.find(postData.towns, function(val) { return val.gps.lat == position.k && val.gps.lng == position.B; });
     if(!!town) {
@@ -206,13 +207,18 @@ function showMarkerDetails(marker, zoom, hide, title) {
         DOM.maplabel.toggleClass("hide", hide);
         if(zoom) {
             map.setZoom(12);
-            map.setCenter(position);
+            map.panTo(position);
             
-            if(!title) {
-                var content = useTemplate("markerTemplate", null, town);
-                infowindow.setContent(content);
-                infowindow.open(map, marker);
+            var model = {
+                name: !!title ? title : town.name,
+                url: !!url ? url : town.url,
+                isexternal: !title
             }
+            var content = useTemplate("markerTemplate", null, model);
+            infowindow.setContent(content);
+            infowindow.open(map, marker);
+            if(model.isexternal)
+                setupMagnificIframe($("#map-info-window a.pop"));
         }
     }
 }
@@ -314,7 +320,7 @@ function buildElevationGraph() {
     // });
 }
 
-$(window).on('resize', function() { redrawElevationGraph(); });
+$(window).on("resize", function() { redrawElevationGraph(); });
 function redrawElevationGraph() {
     if(postData) {
         var el = DOM.elevation;
@@ -383,77 +389,91 @@ function buildArcGauge(value, label, hoverValue, hoverMax, hoverLabel) {
     var width = 170,
     height = 170,
     radius = 70,
-    normalColor = '#32978B',
-    lowColor = '#c81322',
-    secondaryColor = '#a1e8df',
+    normalColor = "#32978B",
+    lowColor = "#c81322",
+    secondaryColor = "#a1e8df",
     normalDuration = 750,
     fastDuration = 100;
 
     var svg = d3.select(DOM.arcgauge()[0])
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-          .append('g')
-            .attr('transform', 'translate(' + (width / 2) + ',' + height / 2 + ')')
-            .on('mouseover', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
-            .on('mousedown', function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
-            .on('mouseleave', function (e) { animateArc(value, label, fastDuration, normalColor); })
-            .on('mouseup', function (e) { animateArc(value, label, fastDuration, normalColor); });
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+          .append("g")
+            .attr("transform", "translate(" + (width / 2) + "," + height / 2 + ")")
+            .on("mouseover", function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
+            .on("mousedown", function () { animateArc(hoverValue, hoverLabel, fastDuration, normalColor, hoverMax); })
+            .on("mouseleave", function (e) { animateArc(value, label, fastDuration, normalColor); })
+            .on("mouseup", function (e) { animateArc(value, label, fastDuration, normalColor); });
 
     arc = d3.svg.arc()
       .innerRadius(radius-20)
       .outerRadius(radius);
 
-    var meter = svg.append('g')
-        .attr('class', 'arc-gauge');
-      meter.append('path')  // background
+    var meter = svg.append("g")
+        .attr("class", "arc-gauge");
+      meter.append("path")  // background
         .datum({startAngle: 0, endAngle: twoPi})
-        .style('fill', '#ddd')
-        .attr('d', arc);
-      meter.append('circle')
-        .attr('r', radius - 20)
-        .style('fill', 'white')
-        .style('opacity', 0.1);
+        .style("fill", "#ddd")
+        .attr("d", arc);
+      meter.append("circle")
+        .attr("r", radius - 20)
+        .style("fill", "white")
+        .style("opacity", 0.1);
 
-    arctext = meter.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('dy', '.35em')
-        .attr('class', 'digits')
-        .style('pointer-events', 'none');
+    arctext = meter.append("text")
+        .attr("text-anchor", "middle")
+        .attr("dy", ".35em")
+        .attr("class", "digits")
+        .style("pointer-events", "none");
 
     if (label) {
-        arclabel = meter.append('text')
-            .attr('text-anchor', 'middle')
-            .attr('dy', '2.6em')
-            .attr('class', 'arclabel')
-            .style('pointer-events', 'none')
+        arclabel = meter.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dy", "2.6em")
+            .attr("class", "arclabel")
+            .style("pointer-events", "none")
             .text(label);
     }
 
     var startAngle = 0;
-    foreground = meter.append('path')
+    foreground = meter.append("path")
       .datum({ startAngle: startAngle, endAngle: startAngle })
-      .attr('d', arc);
+      .attr("d", arc);
 
   animateArc(value, label, normalDuration, normalColor);
 }
 function animateArc(value, label, duration, fill, maxValue) {
-    if(typeof(maxValue)==='undefined') maxValue = 100;
-    arctext.text(value ? value : '--');
+    if(typeof(maxValue)==="undefined") maxValue = 100;
+    arctext.text(value ? value : "--");
     arctext.classed("small", (value.toString().length > 2));
     arclabel.text(label);
-    arclabel.attr('dy', label.length > 4 ? '3.3em' : '2.6em');
+    arclabel.attr("dy", label.length > 4 ? "3.3em" : "2.6em");
     arclabel.classed("small", label.length > 4);
 
     var endAngle = (value > 1 ? (value / maxValue) : value) * twoPi;
 
     foreground.transition().duration(duration)
-        .attrTween('d', function (d) {
+        .attrTween("d", function (d) {
           var i = d3.interpolate(d.endAngle, endAngle);
           return function (t) {
             d.endAngle = i(t);
-            foreground.style('fill', fill);
+            foreground.style("fill", fill);
             return arc(d);
           };
         });
+}
+
+function setupMagnificIframe(elements) {
+    elements.magnificPopup({
+        type:"iframe",
+        iframe: {
+            patterns: {
+                customsource: {
+                    index: "",
+                    src: "%id%"
+                }
+            }
+        }
+     });
 }
