@@ -86,11 +86,12 @@
         <script type="text/template" id="markerTemplate">
             <div id="map-info-window">
                 <h4><strong><%= model.name %></strong></h4>
-                <% if(model.isexternal) { %>
-                    <a href="<%= model.url %>" class="pop" target="_blank">more info</a>
-                <% } else { %>
-
-                  <a href="<%= model.url %>">view post</a>
+                <% if(model.url) { %>
+                  <% if(model.isexternal) { %>
+                      <a href="<%= model.url %>" class="pop" target="_blank">more info</a>
+                  <% } else { %>
+                    <a href="<%= model.url %>">view post</a>
+                  <% } %>
                 <% } %>
             </div>
         </script>
