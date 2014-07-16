@@ -41,9 +41,9 @@ layout: default
                 {% for town in page.data.towns %}
                     <li>
                     {% if town.url %}
-                    <a href="{{ town.url }}" class="pop" target="_blank">{{ town.name }}</a>
+                    <a href="{{ town.url }}" class="pop" target="_blank">{{ town.name | remove: ", Spain" }}</a>
                     {% else %}
-                    {{ town.name }}
+                    {{ town.name | remove: ", Spain" }}
                     {% endif %}
                     </li>
                 {% endfor %}
@@ -55,7 +55,7 @@ layout: default
 
     <div id="footerwrap">
         <div class="container">
-            <div class="col-lg-6">
+            <div class="col-sm-6">
             {% if page.previous %}
                 <h3><a href="{{site.baseurl}}{{page.previous.url}}">&larr; {{page.previous.title}}</a></h3>
                 <p>{{ page.previous.date | date: '%A, %B %-d, %Y'}}<br/>
@@ -65,7 +65,7 @@ layout: default
             {% endif %}
             </div>
             
-            <div class="col-lg-6 text-right">
+            <div class="col-sm-6 text-right">
             {% if page.next %}
                 <h3><a href="{{site.baseurl}}{{page.next.url}}">{{page.next.title}} &rarr;</a></h3>
                 <p>{{ page.next.date | date: '%A, %B %-d, %Y'}}<br/>

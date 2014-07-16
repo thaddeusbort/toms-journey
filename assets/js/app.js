@@ -75,7 +75,7 @@ $(function() {
                 var endDate = new Date(2014, 6, 25);
 
                 if(postData.lastCheckin < endDate && !!postData.mileage && postData.mileage > 0) {
-                    var TOTAL_MILES = 460;
+                    var TOTAL_MILES = 467;
                     var TOTAL_DAYS = 23;
                     var timeDiff = Math.abs(endDate.getTime() - postData.lastCheckin.getTime());
                     var daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
