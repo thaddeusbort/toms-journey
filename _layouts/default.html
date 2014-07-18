@@ -42,6 +42,9 @@
               <ul class="nav navbar-nav">
                 <li {% if page.url == '/index.html' %}class="active"{% endif %}><a href="{{site.baseurl}}/">Home</a></li>
                 <li {% if page.url contains '/getting-there' %}class="active"{% endif %}><a href="{{site.baseurl}}/getting-there">About</a></li>
+                {% if page.url == '/index.html' %}
+                <li><a href="#journal">Journal</a></li>
+                {% endif %}
               </ul>
               <ul class="nav navbar-nav navbar-right">
                 <li><a data-toggle="modal" href="#signupModal">Signup for email updates</a></li>

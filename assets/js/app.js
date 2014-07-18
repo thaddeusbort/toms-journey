@@ -28,6 +28,18 @@ $(function() {
      DOM.imgpop.magnificPopup({type:"image"});
      setupMagnificIframe(DOM.iframepop);
 
+     // setup any single page nav links
+     $("a[href^='#'").click(function(e) {
+        e.preventDefault();
+        var hash = $(this).attr("href");
+        var scrollTo = $(hash);
+        var offset = scrollTo.offset().top - $(".navbar").height();
+        //$(this).addClass("active");
+        $("html, body").stop().animate({
+            scrollTop: offset
+        });
+     });
+
      if(!postData)
         return;
 

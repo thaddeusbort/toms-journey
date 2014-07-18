@@ -38,6 +38,7 @@ function getWalkingRoute(towns) {
     directionsService.route(request, function(response, status) {
         if (status != google.maps.DirectionsStatus.OK) {
             console.log("Error getting route");
+            console.log(response);
         } else {
             // handle directions response
             if(!!response.routes && response.routes.length > 0) {
