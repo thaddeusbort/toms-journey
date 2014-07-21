@@ -25,26 +25,19 @@ var DOM = {
         
 $(function() {
     // setup any images with magnific popup
-     DOM.imgpop.magnificPopup({type:"image"});
-     setupMagnificIframe(DOM.iframepop);
+    DOM.imgpop.magnificPopup({type:"image"});
+    setupMagnificIframe(DOM.iframepop);
 
      // setup any single page nav links
-     $("a[href^='#'").click(function(e) {
-        var $this = $(this);
-        if(!!$this.attr("data-toggle"))
-            return;
-        e.preventDefault();
-        var hash = $this.attr("href");
-        var scrollTo = $(hash);
-        var offset = scrollTo.offset().top - $(".navbar").height();
-        $("li.active").removeClass("active");
-        $this.parent().addClass("active");
-        $("html, body").stop().animate({
-            scrollTop: offset
+    var single_page_nav = $(".single-page-nav");
+    if(!!single_page_nav && single_page_nav.length > 0)
+        single_page_nav.singlePageNav({
+            offset: 50,
+            filter: $("a[href^='#'"),
+            currentClass: "active"
         });
-     });
 
-     if(!postData)
+    if(!postData)
         return;
 
     var santiago_location = { lat: 42.8802049, lng: -8.5447697 };

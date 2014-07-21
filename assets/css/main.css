@@ -60,6 +60,11 @@ a:after {
     transition: color 0.1s ease-in, background 0.1s ease-in;
 }
 
+.navbar-nav>li>a.active,.navbar-default .navbar-nav>li>a.active:hover,.navbar-default .navbar-nav>li>a.active:focus {
+  color:#555;background-color:#e7e7e7
+}
+
+
 #footerwrap {
   background-color: #2f2f2f;
   color: white;
