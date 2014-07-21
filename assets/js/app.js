@@ -30,11 +30,15 @@ $(function() {
 
      // setup any single page nav links
      $("a[href^='#'").click(function(e) {
+        var $this = $(this);
+        if(!!$this.attr("data-toggle"))
+            return;
         e.preventDefault();
-        var hash = $(this).attr("href");
+        var hash = $this.attr("href");
         var scrollTo = $(hash);
         var offset = scrollTo.offset().top - $(".navbar").height();
-        //$(this).addClass("active");
+        $("li.active").removeClass("active");
+        $this.parent().addClass("active");
         $("html, body").stop().animate({
             scrollTop: offset
         });
@@ -101,7 +105,7 @@ $(function() {
                         daysLeft: daysLeft,
                         maxElevation: _.max(_.pluck(postData.elevation, "e"))
                     };
-                    model.neededPace = parseFloat(model.milesLeft/daysLeft).toFixed(2).replace(".00", "");
+                    model.neededPace = parseFloat(model.milesLeft/daysLeft).toFixed(1).replace(".0", "");
                     useTemplate("statsTemplate", "stats", model);
 
                     buildArcGauge(model.percentTraveled, "% traveled", daysUsed, TOTAL_DAYS, "days walking");

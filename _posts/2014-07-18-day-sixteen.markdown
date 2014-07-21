@@ -33,6 +33,7 @@ data:
      lat: 42.6851429
      lng: -7.009764399999995
   - name: Laguna de Castilla
+    url: http://caminodesantiago.consumer.es/albergue-la-escuela
     gps:
      lat: 42.701215
      lng: -7.02159759999995
