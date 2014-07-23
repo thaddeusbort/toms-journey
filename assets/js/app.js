@@ -19,7 +19,7 @@ var DOM = {
     iframepop: $("a.pop"),
     map: $("#map"),
     maplabel: $("#map-label"),
-    elevation: $("#elevation"),
+    elevation: $("#elevation-container"),
     arcgauge: function() { return $(".arcgauge"); }
 };
         
@@ -109,7 +109,6 @@ $(function() {
                     if(!!hdo.towns && hdo.towns.length > 0) {
                         var town = _.last(hdo.towns);
                         var marker = makeMarker(town.gps, null, icons.town);
-//                        marker.setVisible(false);
                         google.maps.event.addListener(marker, "mouseover", function() { showMarkerDetails(marker, false, false, hdo.title, hdo.url); });
                         google.maps.event.addListener(marker, "mouseout", function() { showMarkerDetails(marker, false, true); });
                         google.maps.event.addListener(marker, "click", function() { showMarkerDetails(marker, true, false, hdo.title, hdo.url); });
@@ -120,7 +119,6 @@ $(function() {
                 // draw circles for each town
                 _.each(postData.towns, function(town, index, list) {
                     var marker = makeMarker(town.gps, null, icons.town);
-//                    marker.setVisible(false);
                     google.maps.event.addListener(marker, "mouseover", function() { showMarkerDetails(marker); });
                     google.maps.event.addListener(marker, "mouseout", function() { showMarkerDetails(marker, false, true); });
                     google.maps.event.addListener(marker, "click", function() { showMarkerDetails(marker, true); });
@@ -243,90 +241,88 @@ function useTemplate(templateId, containerId, model) {
         return output;
 }
 
-var graph, x, hoverLineGroup, hoverLineTextValue, graphArea, area;
 var m = [0,0,0,55];
+var graph, moveMarker;
 function buildElevationGraph() {
-    // if(!postData.elevation[0].e) {
-    //     postData.elevation = _.flatten(postData.elevation);
-    // }
-
     var el = DOM.elevation;
     var width = el.width()-m[1]-m[3];
     var height = 150;
 
-    x = d3.scale.linear().range([0, width])
-        .domain([0, postData.elevation.length]);
-    var y = d3.scale.linear().range([height, 0])
-        .domain([d3.min(postData.elevation, function(d) { return d.e; })
-            , d3.max(postData.elevation, function(d) { return d.e; })]);
-
+    var chart = $("#elevation", el)[0];
+    var yaxis = $("#y_axis", el)[0];
     
-    area = d3.svg.area()
-        .x(function(d,i) { return x(i); })
-        .y0(function() { return height - m[2]; })
-        .y1(function(d) { return y(d.e); })
-        .defined(function(d) { return isFinite(d.e); });
-    var line = d3.svg.line()
-        .x(function(d,i) { return x(i); })
-        .y(function(d) { return y(d.e)});
-
-    graph = d3.select(el[0]).append("svg")
-        .attr("width", width + m[1] + m[3])
-        .attr("height", height + m[0] + m[2])
-      .append("g")
-        .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
-
-    // create yAxis
-    var yAxisLeft = d3.svg.axis().scale(y).ticks(4).orient("left");
-    graph.append("g")
-          .attr("class", "y axis")
-          .attr("transform", "translate(0,0)")
-          .call(yAxisLeft);
-    graph.append("text")
-        .attr("class", "y axis-label")
-        .attr("text-anchor", "end")
-        .attr("y", -m[3])
-        .attr("x", -40)
-        .attr("dy", ".75em")
-        .attr("transform", "rotate(-90)")
-        .text("elevation (m)");
-
-    // add line and area
-    graph.append("path").attr("d", line(postData.elevation)).attr("class", "line");
-    graphArea = graph.append("path").attr("d", area(postData.elevation)).attr("class", "area");
-
-    // do these last so they show up on top!
-    hoverLineGroup = graph.append("g").attr("class", "hover-line")
-        .attr("transform", "translate(10)");
-    var hoverLine = hoverLineGroup.append("line")
-        .attr("x1", 1).attr("x2", 1)
-        .attr("y1", m[0]).attr("y2", height - m[2]);
+    var rdata = _.map(postData.elevation, function(val, idx) { return { x: idx, y: val.e }; });
     
-    var hoverLineTextValueY = m[0] + 10;
-    // var hoverLineTextValueRect = hoverLineGroup.append("rect")
-    //             .attr("x", 3).attr("y", hoverLineTextValueY - 10)
-    //             .attr("width", 100).attr("height", 10)
-    //             .attr("class", "background-rect");
-    hoverLineTextValue = hoverLineGroup.append("text")
-                .attr("x", 6).attr("y", hoverLineTextValueY)
-                .attr("text-anchor", "start")
-                .attr("class", "annotation")
-                .text("");
+    graph = new Rickshaw.Graph({
+        element: chart,
+        width: width,
+        height: height,
+        series: [{
+            color: 'steelblue',
+            data: rdata
+        }]
+    });
 
-    // _.each(postData.towns, function(town, index, list) {
-    //     var lineGroup = graph.append("g");
-    //     lineGroup.append("line")
-    //         .attr("x1", 1).attr("x2", 1)
-    //         .attr("y1", m[0]).attr("y2", height - m[2]);
-    //     lineGroup.append("text")
-    //         .attr("x", 6).attr("y", 30)
-    //         .text(town.name.replace(", Spain",""));
+    var y_axis = new Rickshaw.Graph.Axis.Y({
+        graph: graph,
+        orientation: 'left',
+        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+        element: yaxis
+    });
 
-    //     var val = _.find(postData.elevation, function(val) { return val.l.lat == town.gps.lat && val.l.lng == town.gps.lng; })
-    //     var idx = _.indexOf(postData.elevation, val);
-    //     console.log(idx);
-    //     lineGroup.attr("transform", "translate(" + x(idx) + ")");
-    // });
+    graph.render();
+
+    // Add a y-axis label.
+     var label = d3.select("#elevation svg")
+        .append("text")
+         .attr("class", "y label")
+         .attr("text-anchor", "end")
+         .attr("y", 6)
+         .attr("dy", ".75em")
+         .attr("transform", "rotate(-90)")
+         .text("elevation (meters)");
+
+    var CustomHover = Rickshaw.Class.create(Rickshaw.Graph.HoverDetail, {
+        render: function($super, args) {
+            $super(args);
+
+            var val = postData.elevation[args.domainX];
+            moveMarker.setPosition(val.l);
+        },
+        _addListeners: function($super) {
+            $super();
+
+            this.graph.element.addEventListener(
+                'touchmove',
+                function(e) {
+                    this.visible = true;
+                    var dimensions = initDimensions(DOM.elevation);
+                    var touchPoint = (e.touches[0] || e.changedTouches[0]);
+                    e.offsetX = touchPoint.pageX - dimensions.xOffset - m[3];
+                    e.offsetY = touchPoint.pageY;
+                    this.update(e);
+                }.bind(this),
+                false
+            );
+            this.graph.element.addEventListener('touchend', function(e) { mouseOutGraph(e, this) }.bind(this), false);
+            this.graph.element.addEventListener('touchcancel', function(e) { mouseOutGraph(e, this) }.bind(this), false);
+            this.graph.element.addEventListener('mouseleave', function(e) { mouseOutGraph(e, this) }.bind(this), false);
+        }
+    });
+
+    var hoverDetail = new CustomHover({
+        graph: graph,
+        formatter: function(series, x, y) {
+            return y + "m";
+        }
+    });
+}
+
+function mouseOutGraph(e, hoverDetail, force) {
+    //if (force || (e.relatedTarget && !(e.relatedTarget.compareDocumentPosition(hoverDetail.graph.element) & Node.DOCUMENT_POSITION_CONTAINS))) {
+        moveMarker.setPosition(postData.elevation[0].l);
+        hoverDetail.hide();
+    //}
 }
 
 $(window).on("resize", function() { redrawElevationGraph(); });
@@ -336,22 +332,11 @@ function redrawElevationGraph() {
         var width = el.width()-m[1]-m[3];
         var height = 150;
 
-        x = d3.scale.linear().range([0, width])
-            .domain([0, postData.elevation.length]);
-        graph.attr("width", width + m[1] + m[3]);
-        graphArea.attr("d", area(postData.elevation)).attr("class", "area");
+        graph.configure({ width:width, height:height });
+        graph.render();
     }
 }
 
-var moveMarker;
-$(DOM.elevation).on("mousemove touchmove", function(event) {
-    hoverLineGroup.classed("hide", false);
-    handleMouseOverGraph(event);
-});
-$(DOM.elevation).on("mouseleave touchend touchcancel", function(event) {
-    hoverLineGroup.classed("hide", true);
-    moveMarker.setPosition(postData.elevation[0].l);
-});
 var initDimensions = function(el) {
     // automatically size to the container using JQuery to get width/height
     width = el.width();
@@ -362,34 +347,6 @@ var initDimensions = function(el) {
     var offset = el.offset();
     return {width: width, height: height, xOffset: offset.left, yOffset: offset.top};
 };
-var oldMouseX, oldIndex;
-function handleMouseOverGraph(event) {
-    // this used to use graph.dimensions but that didn't get updated if they moved the window
-    // I don't think initDimensions takes very long to run, so this probably shouldn't be too bad
-    var dimensions = initDimensions(DOM.elevation);
-    var mouseX = (event.type == "touchmove" ? (event.originalEvent.touches[0] || event.originalEvent.changedTouches[0]).pageX : event.pageX)
-        - dimensions.xOffset - m[3];
-
-    if(mouseX < 0)
-        mouseX = 0;
-    else if(mouseX > dimensions.width - m[3] - 5)
-        mouseX = dimensions.width - m[3] - 5;
-
-    if(oldMouseX !== mouseX) {
-        event.preventDefault();
-        oldMouseX = mouseX;
-        var hoveredIndex = parseInt(x.invert(mouseX));
-        
-        hoverLineGroup.attr("transform", "translate("+mouseX+")");
-        if(oldIndex !== hoveredIndex) {
-            oldIndex = hoveredIndex;
-
-            var val = postData.elevation[hoveredIndex];
-            hoverLineTextValue.text(parseInt(val.e) + "m");
-            moveMarker.setPosition(val.l);
-        }
-    }
-}
 
 var foreground, arc;
 var arctext, arclabel;

@@ -258,6 +258,15 @@ path.area {
 .home-graph line, .home-graph .y.axis line, .home-graph .y.axis path {
   stroke: white;
 }
+.post-graph text {
+  fill: #777;
+}
+
+#elevation-container { position: relative; }
+#elevation-container #elevation { position: relative; left: 40px; }
+#elevation-container #y_axis { position: absolute; top: 0; bottom: 0; width: 40px; }
+#elevation-container .rickshaw_graph .detail .x_label { display: none; opacity: 0; }
+#elevation-container .y.label { font: 10px sans-serif; }
 
 .home-stats h1,.home-stats h2,.home-stats h3,.home-stats h4 {
   color: white;
