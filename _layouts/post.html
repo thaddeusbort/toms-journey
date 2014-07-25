@@ -23,15 +23,16 @@ layout: default
             {{ page.date | date: '%-I:%M %p'}} {{page.timezone}}
             {% endif %}</p>
 
+            {% if page.towns or page.data.towns %}
             <div id="map-container">
                 <div id="map" class="post-map"></div>
                 <div id="map-label" class="hide"></div>
             </div>
-
             <div id="elevation-container" class="graph post-graph">
                 <div id="y_axis"></div>
                 <div id="elevation"></div>
             </div>
+            {% endif %}
             
             <div class="post full">
             {{ content }}

@@ -108,6 +108,22 @@ $(function() {
                     useTemplate("statsTemplate", "stats", model);
 
                     buildArcGauge(model.percentTraveled, "% traveled", daysUsed, TOTAL_DAYS, "days walking");
+                } else {
+                    endDate = new Date(2014, 6, 24);
+                    var startDate = new Date(2014, 6, 3);
+
+                    var lastWalkingDate = postData.lastCheckin < endDate ? postData.lastCheckin : endDate;
+                    var timeDiff = Math.abs(lastWalkingDate.getTime() - startDate.getTime());
+                    var daysWalked = Math.ceil(timeDiff / (1000 * 3600 * 24))+1;
+
+                    var model = {
+                        milesTraveled: parseInt(postData.mileage),
+                        daysTraveled: daysWalked,
+                        avgPace: parseFloat(postData.mileage/daysWalked).toFixed(1).replace(".0", ""),
+                        maxElevation: _.max(_.pluck(postData.elevation, "e"))
+                    };
+
+                    useTemplate("statsCompleteTemplate", "stats", model);
                 }
 
                 // draw circles for each starting town

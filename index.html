@@ -72,6 +72,18 @@ layout: default
             <h4>PACE NEEDED TO REACH GOAL</h4>
         </div>
     </script>
+    <script type="text/template" id="statsCompleteTemplate">
+        <div class="col-sm-4 text-center">
+            <h2><%= model.milesTraveled %></h2><h4>MILES TRAVELED</h4>
+        </div>
+        <div class="col-sm-4">
+            <h2><%= model.daysTraveled %></h2><h4>DAYS</h4>
+        </div>
+        <div class="col-sm-4 text-center">
+            <h2><%= model.avgPace %><small>mi/day</small></h2>
+            <h4>AVERAGE PACE</h4>
+        </div>
+    </script>
 
     <script type="text/javascript">
         var homeData, postData;

@@ -93,10 +93,12 @@
         </script>
         <script type="text/javascript" src="{{site.baseurl}}/assets/js/app.js"></script>
         {% unless page.data %}
+        {% unless page.nodata %}
         {% if page.id %}
         <!-- THIS SHOULD ONLY BE INCLUDED IF WE'RE ON A POST THAT HAS NOT BEEN FULLY SETUP -->
          <script type="text/javascript" src="{{site.baseurl}}/assets/js/post-setup.js"></script>
         {% endif %}
+        {% endunless %}
         {% endunless %}
 
         <script type="text/template" id="markerTemplate">
