@@ -247,7 +247,7 @@ function useTemplate(templateId, containerId, model) {
         return output;
 }
 
-var m = [0,0,0,55];
+var m = [0,0,0,15];
 var graph, moveMarker;
 function buildElevationGraph() {
     var el = DOM.elevation;
@@ -301,6 +301,8 @@ function buildElevationGraph() {
             this.graph.element.addEventListener(
                 'touchmove',
                 function(e) {
+                    // TODO: if movement is mostly in y-direction, don't prevent default and let the user scroll
+                    e.preventDefault();
                     this.visible = true;
                     var dimensions = initDimensions(DOM.elevation);
                     var touchPoint = (e.touches[0] || e.changedTouches[0]);

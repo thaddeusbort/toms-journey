@@ -263,8 +263,8 @@ path.area {
 }
 
 #elevation-container { position: relative; }
-#elevation-container #elevation { position: relative; left: 40px; }
-#elevation-container #y_axis { position: absolute; top: 0; bottom: 0; width: 40px; }
+#elevation-container #elevation { position: relative; left: 15px; }
+#elevation-container #y_axis { position: absolute; top: 0; bottom: 0; width: 20px; }
 #elevation-container .rickshaw_graph .detail .x_label { display: none; opacity: 0; }
 #elevation-container .y.label { font: 10px sans-serif; }
 
