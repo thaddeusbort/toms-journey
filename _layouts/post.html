@@ -23,7 +23,7 @@ layout: default
             {{ page.date | date: '%-I:%M %p'}} {{page.timezone}}
             {% endif %}</p>
 
-            {% if page.towns or page.data.towns %}
+            {% if page.towns or page.data.towns or page.data.flights %}
             <div id="map-container">
                 <div id="map" class="post-map"></div>
                 <div id="map-label" class="hide"></div>
