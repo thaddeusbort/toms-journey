@@ -65,6 +65,8 @@ $(function() {
 
             // draw route paths
             _.each(postData.paths, function(path, index, list) {
+                if(path.indexOf('ESCAPE') == 0)
+                    path = path.substring(6);
                 var decodedPath = google.maps.geometry.encoding.decodePath(path);
                 drawLine(map, decodedPath);
             });
@@ -73,8 +75,12 @@ $(function() {
             moveMarker = makeMarker(_.first(postData.towns).gps, null, icons.start);
             if(isHomepage)
                 makeMarker(santiago_location, null, icons.santiago);
-            else
-                makeMarker(_.last(postData.towns).gps, null, icons.stop);
+            else {
+                var lastTown = _.last(postData.towns);
+                var isSantiago = lastTown.name.indexOf("Santiago de Compostela") == 0;
+                makeMarker(lastTown.gps, null
+                    , isSantiago ? icons.santiago : icons.stop);
+            }
 
             buildElevationGraph();
 
@@ -84,7 +90,7 @@ $(function() {
                 var endDate = new Date(2014, 6, 25);
 
                 if(postData.lastCheckin < endDate && !!postData.mileage && postData.mileage > 0) {
-                    var TOTAL_MILES = 467;
+                    var TOTAL_MILES = 478;
                     var TOTAL_DAYS = 23;
                     var timeDiff = Math.abs(endDate.getTime() - postData.lastCheckin.getTime());
                     var daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
